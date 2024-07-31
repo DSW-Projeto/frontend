@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <NavBar />
-    <div class="container">
+    <div class="appcontainer">
       <LoginC />
     </div>
   </div>
@@ -30,9 +30,9 @@ body {
   background-color: var(--background-dark);
 }
 
-.container{
+.appcontainer{
   background-color: var(--background);
-  margin: 5vh;
+  margin: 5vh 15vh 5vh 15vh;
   border-radius: 7px;
 }
 </style>

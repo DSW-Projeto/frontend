@@ -1,11 +1,11 @@
 <template>
     <nav class="nav">
         <img src="../../assets/logo.png" class="logo" alt="logotipo da aplicação">
-        <ul class="nav-list">
-            <li><a href="">Meus Quadros</a></li>
-            <li><a href="">Compartilhados</a></li>
-            <li><a href="">Geral</a></li>
-        </ul>
+        <div class="nav-list">
+            <v-btn depressed><a href="">Meus Quadros</a></v-btn>
+            <v-btn depressed><a href="">Compartilhados</a></v-btn>
+            <v-btn depressed><a href="">Geral</a></v-btn>
+        </div>
     </nav>
 </template>
 
@@ -19,27 +19,36 @@ export default {
 <style scoped>
 @import '../../assets/Styles.css';
 
-.nav{
-    padding: 6px;
-    padding-left: 5vh;
+.v-btn{
+    background-color: var(--background) !important;
+    height: 100% !important;
+}
+.nav {
+    padding: 3px;
+    padding-left: 15vh;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    background-color:var(--background);
+    background-color: var(--background);
     height: 8vh;
 }
-.nav-list{
+
+.nav-list {
     height: 100%;
     margin: 0;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     list-style: none;
 }
-.nav-list li{
+
+.nav-list li {
     display: flex;
     align-items: center;
     height: 100%;
 }
-a{
+
+a {
     display: flex;
     align-items: center;
     padding-left: 16px;
@@ -50,10 +59,9 @@ a{
     text-transform: uppercase;
     font-size: 1.2em;
 }
-a:hover{
-    opacity: 0.5;
-}
-.logo{
+
+
+.logo {
     height: 100%;
 }
 </style>
