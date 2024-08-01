@@ -2,7 +2,8 @@
   <div id="app">
     <NavBar />
     <div class="appcontainer">
-      <LoginC />
+      <LoginC v-if="existe"/>
+      <router-view></router-view>
     </div>
   </div>
 </template>
@@ -14,8 +15,15 @@ export default {
   name: 'App',
   components: {
     NavBar, LoginC
+  },
+  data(){
+    return{
+      existe:false,
+    }
   }
 }
+
+
 </script>
 
 <style>
@@ -32,7 +40,13 @@ body {
 
 .appcontainer{
   background-color: var(--background);
-  margin: 5vh 15vh 5vh 15vh;
+  margin: 5vw 15vw 5vw 15vw;
   border-radius: 7px;
+}
+
+@media(max-width: 600px){
+  .appcontainer{
+    background-color: black;
+  }
 }
 </style>

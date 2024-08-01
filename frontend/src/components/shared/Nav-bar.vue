@@ -25,12 +25,12 @@ export default {
 }
 .nav {
     padding: 3px;
-    padding-left: 15vh;
+    padding-left: 15vw;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     background-color: var(--background);
-    height: 8vh;
+    height: 5vw;
 }
 
 .nav-list {

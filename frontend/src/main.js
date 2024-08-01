@@ -4,16 +4,18 @@ import App from './App.vue'
 import vuetify from './plugins/vuetify'
 
 /*Imports de componentes*/
+import HelloWorld from './components/HelloWorld.vue'
+
 Vue.use(Router)
 
 const router = new Router({
   mode: 'history',
-//  routes: [
-//    {
-//      path: '/',
-//      name: 'home',
-//      component: Homepage
-//    }]
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: HelloWorld
+    }]
 })
 
 new Vue({
