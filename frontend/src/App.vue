@@ -1,10 +1,10 @@
 <template>
   <div id="app">
     <NavBar />
-    <div class="appcontainer">
+    <div :class="['appcontainer', { wide: isWide }]">
       <LoginC v-if="userLoggedIn" />
       <v-theme-provider :dark="true">
-        <router-view></router-view>
+        <router-view @update:wide="handleWide"></router-view>
       </v-theme-provider>
     </div>
   </div>
@@ -21,15 +21,27 @@ export default {
   data() {
     return {
       userLoggedIn: false,
+      isWide: false,
+    }
+  },
+  methods: {
+    handleWide(value) {
+      this.isWide = value;
     }
   }
 }
 
 
+
 </script>
 
 <style lang="scss">
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@font-face {
+  font-family: 'Montserrat';
+  src: url('@/assets/Fonts/Montserrat-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
 
 * {
   font-family: "Montserrat";
@@ -51,6 +63,10 @@ body {
   background-color: var(--background);
   margin: 5vw 15vw 5vw 15vw;
   border-radius: 7px;
+}
+
+.appcontainer.wide {
+  margin: 1vw 5vw 1vw 5vw;
 }
 
 @media(max-width: 600px) {
