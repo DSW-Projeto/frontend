@@ -3,8 +3,10 @@ import Router from 'vue-router'
 import App from './App.vue'
 import vuetify from './plugins/vuetify'
 
+
 /*Imports de componentes*/
 import HelloWorld from './components/HelloWorld.vue'
+import FrameList from './components/Frame-List.vue'
 
 Vue.use(Router)
 
@@ -15,6 +17,10 @@ const router = new Router({
       path: '/',
       name: 'home',
       component: HelloWorld
+    },{
+      path:'/list',
+      name: 'frame-list',
+      component: FrameList
     }]
 })
 

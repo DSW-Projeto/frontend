@@ -57,7 +57,7 @@ a {
     color: var(--texto);
     text-decoration: none;
     text-transform: uppercase;
-    font-size: 1.2em;
+    font-size: 0.8em;
 }
 
 
