@@ -1,9 +1,7 @@
 <template>
   <div class="boardScreen">
-    <p>.</p>
-    <div class="cols"  v-for="(item, index) in items" :key="index">
-      <BoardCol class="cmpCol"></BoardCol>
-      <div v-if="index < items.length - 1" class="divider"></div>
+    <div class="cols" v-for="(list, index) in lists" :key="index">
+      <BoardCol :title="list.title" :cards="list.cards" class="cmpCol"></BoardCol>
     </div>
   </div>
 </template>
@@ -21,7 +19,44 @@ export default {
   },
   data() {
     return {
-      items: [1, 2, 3, 4, 5, 2, 3, 4, 5, 2, 3, 4, 5, 2, 3, 4, 5, 2, 3, 4, 5, 2, 3, 4, 5]
+      lists: [
+        {
+          title: 'esse é o teste 1', cards: [
+            { description: 'Primeira descrição genérica', author: 'Thiago', lstEdition: '05/10/2023', creation: '08/06/2023' },
+            { description: 'Segunda descrição genérica', author: 'Walker', lstEdition: '10/08/2024', creation: '09/10/2023' },
+            { description: 'Terceira descrição genérica', author: 'Walker', lstEdition: '10/08/2024', creation: '09/10/2023' },
+          ]
+        },
+        {
+          title: 'Isso é algo', cards: [
+            { description: 'Terceira descrição genérica', author: 'Walker', lstEdition: '10/08/2024', creation: '09/10/2023' }
+          ]
+        },
+        {
+          title: 'apenas testando', cards: [
+            { description: 'Quarta descrição genérica', author: 'Walker', lstEdition: '10/08/2024', creation: '09/10/2023' }
+          ]
+        },
+        {
+          title: 'esse é um teste', cards: [
+            { description: 'Primeira descrição genérica', author: 'Thiago', lstEdition: '05/10/2023', creation: '08/06/2023' },
+            { description: 'Primeira descrição genérica', author: 'Thiago', lstEdition: '05/10/2023', creation: '08/06/2023' },
+            { description: 'Primeira descrição genérica', author: 'Thiago', lstEdition: '05/10/2023', creation: '08/06/2023' },
+            { description: 'Primeira descrição genérica', author: 'Thiago', lstEdition: '05/10/2023', creation: '08/06/2023' },
+            { description: 'Primeira descrição genérica', author: 'Thiago', lstEdition: '05/10/2023', creation: '08/06/2023' },
+            { description: 'Primeira descrição genérica', author: 'Thiago', lstEdition: '05/10/2023', creation: '08/06/2023' },
+            { description: 'Segunda descrição genérica', author: 'Walker', lstEdition: '10/08/2024', creation: '09/10/2023' },
+            { description: 'Terceira descrição genérica', author: 'Walker', lstEdition: '10/08/2024', creation: '09/10/2023' },
+          ]
+        },
+        {
+          title: 'mais testes', cards: [
+            { description: 'Primeira descrição genérica', author: 'Thiago', lstEdition: '05/10/2023', creation: '08/06/2023' },
+            { description: 'Segunda descrição genérica', author: 'Walker', lstEdition: '10/08/2024', creation: '09/10/2023' },
+            { description: 'Terceira descrição genérica', author: 'Walker', lstEdition: '10/08/2024', creation: '09/10/2023' },
+          ]
+        },
+      ]
     }
   }
 }
@@ -29,26 +64,19 @@ export default {
 
 
 <style scoped>
-
-.cmpCol{
-  margin: 0 1vw 0 1vw;
-}
-.cols{
+.cols {
   display: flex;
   flex-direction: row;
-  height: 75vh;
-}
-.divider {
-  width: 1px;
-  background-color: #555;
-  height: 99%;
-  margin: 0 5px;
+  height: 100%;
+  transform: rotateX(180deg);
 }
 
 .boardScreen {
   display: flex;
   flex-direction: row;
   overflow: auto;
-  
+  align-items: flex-end;
+  transform: rotateX(180deg);
+
 }
 </style>

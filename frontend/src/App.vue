@@ -2,8 +2,8 @@
   <div id="app">
     <NavBar />
     <div :class="['appcontainer', { wide: isWide }]">
-      <LoginC v-if="userLoggedIn" />
-      <v-theme-provider :dark="true">
+      <LoginC v-if="!userLoggedIn" />
+      <v-theme-provider v-if="userLoggedIn" :dark="true">
         <router-view @update:wide="handleWide"></router-view>
       </v-theme-provider>
     </div>
@@ -20,7 +20,7 @@ export default {
   },
   data() {
     return {
-      userLoggedIn: false,
+      userLoggedIn: true,
       isWide: false,
     }
   },
@@ -67,6 +67,7 @@ body {
 
 .appcontainer.wide {
   margin: 1vw 5vw 1vw 5vw;
+  background-color: transparent;
 }
 
 @media(max-width: 600px) {

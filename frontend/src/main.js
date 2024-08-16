@@ -2,11 +2,11 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import App from './App.vue'
 import vuetify from './plugins/vuetify'
-
+import 'material-design-icons-iconfont/dist/material-design-icons.css'
 
 /*Imports de componentes*/
 import HelloWorld from './components/HelloWorld.vue'
-import FrameList from './components/Board/BoardList.vue'
+import BoardList from './components/BoardList.vue'
 import BoardSc from './components/Board/BoardSc.vue'
 
 Vue.use(Router)
@@ -21,7 +21,7 @@ const router = new Router({
     }, {
       path: '/list',
       name: 'frame-list',
-      component: FrameList
+      component: BoardList
     },
     {
       path: '/list/:id',

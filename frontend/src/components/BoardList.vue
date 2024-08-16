@@ -72,7 +72,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-@import '../../assets/Styles.css';
+@import '../assets/Styles.css';
 
 td:hover {
     background-color: var(--background-dark);
