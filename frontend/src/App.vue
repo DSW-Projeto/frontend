@@ -1,13 +1,15 @@
 <template>
-  <div id="app">
-    <NavBar />
-    <div :class="['appcontainer', { wide: isWide }]">
-      <LoginC v-if="!userLoggedIn" />
-      <v-theme-provider v-if="userLoggedIn" :dark="true">
-        <router-view @update:wide="handleWide"></router-view>
-      </v-theme-provider>
+  <v-app>
+    <div class="background" id="app">
+      <NavBar />
+      <div :class="['appcontainer', { wide: isWide }]">
+        <LoginC v-if="!userLoggedIn" />
+        <v-theme-provider v-if="userLoggedIn" :dark="true">
+          <router-view @update:wide="handleWide"></router-view>
+        </v-theme-provider>
+      </div>
     </div>
-  </div>
+  </v-app>
 </template>
 
 <script>
@@ -27,6 +29,16 @@ export default {
   methods: {
     handleWide(value) {
       this.isWide = value;
+    }
+  },
+  watch: {
+    $route(to) {
+      // Altera isWide com base na rota
+      if (to.name === 'lists') {
+        this.isWide = true;
+      } else {
+        this.isWide = false;
+      }
     }
   }
 }
@@ -56,17 +68,16 @@ export default {
 
 body {
   margin: 0;
-  background-color: var(--background-dark);
+
 }
 
 .appcontainer {
-  background-color: var(--background);
   margin: 5vw 15vw 5vw 15vw;
   border-radius: 7px;
 }
 
 .appcontainer.wide {
-  margin: 1vw 5vw 1vw 5vw;
+  margin: 0 5vw 1vw 5vw;
   background-color: transparent;
 }
 

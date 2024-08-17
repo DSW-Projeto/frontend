@@ -2,7 +2,7 @@
     <div class="col">
         <h2 class="title">{{ title }}</h2>
         <div v-for="(card, index) in cards" class="card" :key="index">
-            <BoardCard :description="card.description" :author="card.author" :lstEdition="card.lstEdition"
+            <BoardCard class="tertiary" :description="card.description" :author="card.author" :lstEdition="card.lstEdition"
                 :creation="card.creation"></BoardCard>
         </div>
         <BoardCreatCard></BoardCreatCard>

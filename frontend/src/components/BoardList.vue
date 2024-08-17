@@ -1,15 +1,15 @@
 <template>
-    <div class="Frame-List">
-        <v-data-table :headers="headers" :items="boards" :disable-pagination=true :hide-default-footer="true">
-            <template v-slot:item="{ item }">
-                <tr>
-                    <td @click="goToPage(item.id)">{{ item.screenName }}</td>
-                    <td @click="goToPage(item.id)">{{ item.autor }}</td>
-                    <td @click="goToPage(item.id)">{{ item.dataMod }}</td>
-                </tr>
-            </template>
-        </v-data-table>
-    </div>
+        <div class="Frame-List">
+            <v-data-table class="primary--text" :headers="headers" :items="boards" :disable-pagination=true :hide-default-footer="true">
+                <template v-slot:item="{ item }">
+                    <tr>
+                        <td @click="goToPage(item.id)">{{ item.screenName }}</td>
+                        <td @click="goToPage(item.id)">{{ item.autor }}</td>
+                        <td @click="goToPage(item.id)">{{ item.dataMod }}</td>
+                    </tr>
+                </template>
+            </v-data-table>
+        </div>
 </template>
 
 <script>
@@ -75,7 +75,12 @@ export default {
 @import '../assets/Styles.css';
 
 td:hover {
-    background-color: var(--background-dark);
     cursor: pointer;
 }
+
+/* Estilos CSS no arquivo .vue ou global */
+
+
+
+
 </style>

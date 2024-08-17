@@ -3,11 +3,11 @@
         <p>{{ description }}</p>
         <div class="time">
             <div>
-                <v-icon class="icons">more_time</v-icon>
+                <v-icon class="icons primary--text">more_time</v-icon>
                 <p>{{ creation }}</p>
             </div>
             <div>
-                <v-icon>edit</v-icon>
+                <v-icon class="primary--text">edit</v-icon>
                 <p>{{ lstEdition }}</p>
             </div>
         </div>
@@ -49,7 +49,6 @@ export default {
     display: flex;
     flex-direction: column;
     width: 100%;
-    background-color: #444;
     border-radius: 2px;
     margin-bottom: 7px;
 }

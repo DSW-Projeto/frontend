@@ -1,6 +1,6 @@
 <template>
-    <div class="createCard">
-        <v-icon>add</v-icon>
+    <div class="createCard secondary">
+        <v-icon class="primary--text">add</v-icon>
     </div>
 </template>
 

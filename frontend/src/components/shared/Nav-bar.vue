@@ -1,23 +1,40 @@
 <template>
-    <nav class="nav">
+    <nav class="nav secondary">
         <img src="../../assets/logo.png" class="logo" alt="logotipo da aplicação">
         <div class="nav-list">
-            <v-btn @click="goToList" :class="{ 'disabled': isCurrentRoute('/list') }" depressed :disabled="isCurrentRoute('/list')"><a>Meus Quadros</a></v-btn>
-            <v-btn depressed><a href="">Compartilhados</a></v-btn>
-            <v-btn depressed><a href="">Conta</a></v-btn>
+            <v-btn @click="goToList" :class="{ 'disabled': isCurrentRoute('/list') }" depressed class="secondary primary--text"
+                :disabled="isCurrentRoute('/list')">Meus Quadros</v-btn>
+            <v-btn depressed class="secondary primary--text">Conta</v-btn>
+            <v-btn depressed class="secondary primary--text" @click="toggleTheme">Tema teste</v-btn>
         </div>
     </nav>
 </template>
 
 <script>
 export default {
+    data() {
+        return {
+            currentColor: 'one'
+        }
+    },
     methods: {
         isCurrentRoute(route) {
             return this.$route.path === route
         },
-        goToList(){
+        goToList() {
             if (!this.isCurrentRoute('/list')) {
                 this.$router.push('/list');
+            }
+        },
+        toggleTheme() {
+            if (this.currentColor === 'one') {
+                this.$vuetify.theme.themes.dark.primary = '#FF0000';
+                this.$vuetify.theme.themes.dark.secondary = '#00FF00';
+                this.currentColor = 'two'
+            } else {
+                this.$vuetify.theme.themes.dark.primary = '#E0E0E0';
+                this.$vuetify.theme.themes.dark.secondary = '#';
+                this.currentColor = 'one'
             }
         }
     },
@@ -30,7 +47,6 @@ export default {
 @import '../../assets/Styles.css';
 
 .v-btn {
-    background-color: var(--background) !important;
     height: 100% !important;
 }
 
@@ -39,7 +55,6 @@ export default {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    background-color: var(--background);
     height: 5vw;
 }
 
