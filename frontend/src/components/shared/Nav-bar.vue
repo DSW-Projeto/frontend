@@ -2,15 +2,25 @@
     <nav class="nav">
         <img src="../../assets/logo.png" class="logo" alt="logotipo da aplicação">
         <div class="nav-list">
-            <v-btn depressed><a href="">Meus Quadros</a></v-btn>
+            <v-btn @click="goToList" :class="{ 'disabled': isCurrentRoute('/list') }" depressed :disabled="isCurrentRoute('/list')"><a>Meus Quadros</a></v-btn>
             <v-btn depressed><a href="">Compartilhados</a></v-btn>
-            <v-btn depressed><a href="">Geral</a></v-btn>
+            <v-btn depressed><a href="">Conta</a></v-btn>
         </div>
     </nav>
 </template>
 
 <script>
 export default {
+    methods: {
+        isCurrentRoute(route) {
+            return this.$route.path === route
+        },
+        goToList(){
+            if (!this.isCurrentRoute('/list')) {
+                this.$router.push('/list');
+            }
+        }
+    },
     name: 'Nav-bar'
 }
 </script>
@@ -19,18 +29,18 @@ export default {
 <style scoped>
 @import '../../assets/Styles.css';
 
-.v-btn{
+.v-btn {
     background-color: var(--background) !important;
     height: 100% !important;
 }
+
 .nav {
-    padding: 3px;
-    padding-left: 15vh;
+    padding-left: 15vw;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     background-color: var(--background);
-    height: 8vh;
+    height: 5vw;
 }
 
 .nav-list {
@@ -57,11 +67,12 @@ a {
     color: var(--texto);
     text-decoration: none;
     text-transform: uppercase;
-    font-size: 1.2em;
+    font-size: 0.8em;
 }
 
 
 .logo {
     height: 100%;
+    margin-right: 5px;
 }
 </style>

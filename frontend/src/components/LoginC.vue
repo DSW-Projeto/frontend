@@ -6,11 +6,11 @@
         <v-form v-model="valid">
           <v-container>
             <v-row>
-              <v-col cols="12" sm="6" md="4">
+              <v-col cols="12" sm="6" md="6">
                 <v-text-field dark autocomplete="null" no-autocomplete placeholder="exemplo@mail.com" label="Email"
                   filled :rules="emailRules" required></v-text-field>
               </v-col>
-              <v-col cols="12" sm="6" md="4">
+              <v-col cols="12" sm="6" md="6">
                 <v-text-field dark filled v-model="firstname" :rules="nameRules" placeholder="Senha" label="Senha"
                   required></v-text-field>
               </v-col>
@@ -36,7 +36,7 @@
                 label="Repetir Senha" required></v-text-field>
             </v-row>
             <v-row>
-              <v-col cols="12" sm="6" md="4" align="center"><v-btn>REGISTRAR</v-btn></v-col>
+              <v-col><v-btn>REGISTRAR</v-btn></v-col>
             </v-row>
           </v-container>
         </v-form>
