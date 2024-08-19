@@ -6,8 +6,11 @@
                 :lstEdition="card.lstEdition" :creation="card.creation"></BoardCard>
         </div>
         <div class="colOptions">
-            <BoardCreateCard class="option" @form-submitted="handleNewCard"></BoardCreateCard>
-            <BoardColEdit class="option" @rename-col="handleNewColName"></BoardColEdit>
+            <div class="rowOptions">
+                <BoardCreateCard @form-submitted="handleNewCard"></BoardCreateCard>
+                <BoardColEdit @rename-col="handleNewColName"></BoardColEdit>
+            </div>
+            <BoardColDelete @delete-col="handleDeleteCol" class="delBtn"></BoardColDelete>
         </div>
     </div>
 </template>
@@ -16,6 +19,7 @@
 import BoardCard from './BoardCard.vue';
 import BoardCreateCard from './BoardCreateCard.vue';
 import BoardColEdit from './BoardColEdit.vue';
+import BoardColDelete from './BoardColDelete.vue';
 
 export default {
     name: 'BoardCol',
@@ -25,8 +29,12 @@ export default {
         },
         handleNewColName(newColName) {
             this.$emit('rename-col', { title: newColName, id: this.id })
+        },
+        handleDeleteCol(){
+            this.$emit('delete-col', this.id)
         }
     },
+
     props: {
         cards: {
             type: Array,
@@ -44,7 +52,8 @@ export default {
     components: {
         BoardCard,
         BoardCreateCard,
-        BoardColEdit
+        BoardColEdit,
+        BoardColDelete
     },
     data() {
         return {
@@ -79,12 +88,14 @@ export default {
 }
 
 .colOptions {
-    display: flex;
     min-width: 19vw;
-    justify-content: space-around;
 }
 
-.option {
-    flex: 1;
+.rowOptions {
+    display: flex;
+    margin-bottom: 7px;
+}
+.delBtn{
+    width: 100%;
 }
 </style>

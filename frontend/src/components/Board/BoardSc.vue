@@ -48,7 +48,7 @@
     <div class="boardScreenRotate">
       <BoardCreateCol @form-submitted="handleNewCol" class="createCol"></BoardCreateCol>
       <div class="cols" v-for="(list, index) in lists" :key="index">
-        <BoardCol @rename-col="handleNewColName" @send-card="handleNewCard" :id="list.id" :title="list.title" :cards="list.cards"
+        <BoardCol @delete-col="handleDeleteCol" @rename-col="handleNewColName" @send-card="handleNewCard" :id="list.id" :title="list.title" :cards="list.cards"
           class="cmpCol secondary primary--text"></BoardCol>
       </div>
     </div>
@@ -87,6 +87,9 @@ export default {
           list.title = data.title;
         }
       })
+    },
+    handleDeleteCol(id){
+      this.lists = this.lists.filter(list => list.id !== id);
     },
     handleNewCard(data) {
       const formatter = new Intl.DateTimeFormat('pt-BR', {

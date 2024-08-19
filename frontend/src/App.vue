@@ -2,7 +2,7 @@
   <v-app>
     <div class="background" id="app">
       <NavBar />
-      <div :class="['appcontainer', { wide: isWide }]">
+      <div :class="['appcontainer', { wide: isWide }, 'secondary']">
         <LoginC v-if="!userLoggedIn" />
         <v-theme-provider v-if="userLoggedIn" :dark="true">
           <router-view @update:wide="handleWide"></router-view>
@@ -22,7 +22,7 @@ export default {
   },
   data() {
     return {
-      userLoggedIn: true,
+      userLoggedIn: false,
       isWide: false,
     }
   },
