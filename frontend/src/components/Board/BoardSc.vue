@@ -36,7 +36,7 @@
               <v-color-picker v-model="backColor"></v-color-picker>
             </v-card-subtitle>
           </v-card>
-          
+
         </div>
         <v-card-actions class="actions">
           <v-spacer></v-spacer>
@@ -46,8 +46,10 @@
       </div>
     </v-dialog>
     <div class="boardScreenRotate">
+      <BoardCreateCol @form-submitted="handleNewCol" class="createCol"></BoardCreateCol>
       <div class="cols" v-for="(list, index) in lists" :key="index">
-        <BoardCol :title="list.title" :cards="list.cards" class="cmpCol secondary primary--text"></BoardCol>
+        <BoardCol @rename-col="handleNewColName" @send-card="handleNewCard" :id="list.id" :title="list.title" :cards="list.cards"
+          class="cmpCol secondary primary--text"></BoardCol>
       </div>
     </div>
   </div>
@@ -55,11 +57,13 @@
 
 <script>
 import BoardCol from './BoardCol.vue';
+import BoardCreateCol from './BordCreateCol.vue';
 
 export default {
   name: 'BoardSc',
   components: {
-    BoardCol
+    BoardCol,
+    BoardCreateCol
   },
   methods: {
     applyColor() {
@@ -68,6 +72,41 @@ export default {
       this.$vuetify.theme.themes.dark.tertiary = this.cardColor;
       this.$vuetify.theme.themes.dark.background = this.backColor;
       this.showColorPicker = false;
+    },
+    generateId() {
+      return 'id-' + Date.now()
+    },
+    handleNewCol(name) {
+      let newId = this.generateId();
+      let newCol = { id: newId, title: name, cards: [] };
+      this.lists.unshift(newCol);
+    },
+    handleNewColName(data){
+      this.lists.forEach((list)=>{
+        if(list.id === data.id){
+          list.title = data.title;
+        }
+      })
+    },
+    handleNewCard(data) {
+      const formatter = new Intl.DateTimeFormat('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+      let today = formatter.format(Date.now());
+      let newCard = {
+        description: data.description,
+        author: 'Thiago',
+        lstEdition: '-',
+        creation: today
+      };
+      this.lists.forEach((list) => {
+        if (list.id === data.id) {
+          list.cards.push(newCard);
+        }
+      })
+      console.log(newCard);
     }
   },
   mounted() {
@@ -81,42 +120,7 @@ export default {
       colColor: '#FF0000',
       backColor: '#FF0000',
       lists: [
-        {
-          title: 'esse é o teste 1', cards: [
-            { description: 'Primeira descrição genérica', author: 'Thiago', lstEdition: '05/10/2023', creation: '08/06/2023' },
-            { description: 'Segunda descrição genérica', author: 'Walker', lstEdition: '10/08/2024', creation: '09/10/2023' },
-            { description: 'Terceira descrição genérica', author: 'Walker', lstEdition: '10/08/2024', creation: '09/10/2023' },
-          ]
-        },
-        {
-          title: 'Isso é algo', cards: [
-            { description: 'Terceira descrição genérica', author: 'Walker', lstEdition: '10/08/2024', creation: '09/10/2023' }
-          ]
-        },
-        {
-          title: 'apenas testando', cards: [
-            { description: 'Quarta descrição genérica', author: 'Walker', lstEdition: '10/08/2024', creation: '09/10/2023' }
-          ]
-        },
-        {
-          title: 'esse é um teste', cards: [
-            { description: 'Primeira descrição genérica', author: 'Thiago', lstEdition: '05/10/2023', creation: '08/06/2023' },
-            { description: 'Primeira descrição genérica', author: 'Thiago', lstEdition: '05/10/2023', creation: '08/06/2023' },
-            { description: 'Primeira descrição genérica', author: 'Thiago', lstEdition: '05/10/2023', creation: '08/06/2023' },
-            { description: 'Primeira descrição genérica', author: 'Thiago', lstEdition: '05/10/2023', creation: '08/06/2023' },
-            { description: 'Primeira descrição genérica', author: 'Thiago', lstEdition: '05/10/2023', creation: '08/06/2023' },
-            { description: 'Primeira descrição genérica', author: 'Thiago', lstEdition: '05/10/2023', creation: '08/06/2023' },
-            { description: 'Segunda descrição genérica', author: 'Walker', lstEdition: '10/08/2024', creation: '09/10/2023' },
-            { description: 'Terceira descrição genérica', author: 'Walker', lstEdition: '10/08/2024', creation: '09/10/2023' },
-          ]
-        },
-        {
-          title: 'mais testes', cards: [
-            { description: 'Primeira descrição genérica', author: 'Thiago', lstEdition: '05/10/2023', creation: '08/06/2023' },
-            { description: 'Segunda descrição genérica', author: 'Walker', lstEdition: '10/08/2024', creation: '09/10/2023' },
-            { description: 'Terceira descrição genérica', author: 'Walker', lstEdition: '10/08/2024', creation: '09/10/2023' },
-          ]
-        },
+
       ]
     }
   }
@@ -131,12 +135,18 @@ export default {
   align-items: center;
 }
 
+.createCol {
+  transform: rotateX(180deg);
+  margin: 5px;
+}
+
 .colorPickers {
   display: flex;
   flex-direction: row;
 }
 
 .cols {
+  margin: 5px;
   display: flex;
   flex-direction: row;
   height: 100%;

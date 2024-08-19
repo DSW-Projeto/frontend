@@ -33,7 +33,6 @@ export default {
   },
   watch: {
     $route(to) {
-      // Altera isWide com base na rota
       if (to.name === 'lists') {
         this.isWide = true;
       } else {

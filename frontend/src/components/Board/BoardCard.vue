@@ -4,15 +4,15 @@
         <div class="time">
             <div>
                 <v-icon class="icons primary--text">more_time</v-icon>
-                <p>{{ creation }}</p>
+                <span>{{ creation }}</span>
             </div>
             <div>
                 <v-icon class="primary--text">edit</v-icon>
-                <p>{{ lstEdition }}</p>
+                <span>{{ lstEdition }}</span>
             </div>
         </div>
         <div class="author">
-            <p>Autor: {{ author }}</p>
+            <span>Autor: {{ author }}</span>
         </div>
     </div>
 </template>

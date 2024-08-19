@@ -30,10 +30,14 @@ export default {
             if (this.currentColor === 'one') {
                 this.$vuetify.theme.themes.dark.primary = '#FF0000';
                 this.$vuetify.theme.themes.dark.secondary = '#00FF00';
+                this.$vuetify.theme.themes.dark.tertiary = '#0000FF';
+                this.$vuetify.theme.themes.dark.background = '#00FFFF';
                 this.currentColor = 'two'
             } else {
                 this.$vuetify.theme.themes.dark.primary = '#E0E0E0';
-                this.$vuetify.theme.themes.dark.secondary = '#';
+                this.$vuetify.theme.themes.dark.secondary = '#303030';
+                this.$vuetify.theme.themes.dark.tertiary = '#444';
+                this.$vuetify.theme.themes.dark.background = '#1a1a1a';
                 this.currentColor = 'one'
             }
         }
