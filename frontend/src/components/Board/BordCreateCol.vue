@@ -7,7 +7,7 @@
                 <v-container class="tertiary">
                     <v-row>
                         <v-col cols="12" md="12">
-                            <v-text-field @blur="validateField" v-model="newColName" :rules="[minLength, maxLength]"
+                            <v-text-field v-model="newColName" :rules="[minLength, maxLength]"
                                 maxlength="30" :counter="30" label="Nome da coluna" required>
                             </v-text-field>
                         </v-col>
@@ -54,9 +54,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.colDialog {
-    background-color: red;
-}
 
 .btnCol {
     display: flex;

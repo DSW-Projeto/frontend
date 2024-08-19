@@ -74,7 +74,7 @@ export default {
       this.showColorPicker = false;
     },
     generateId() {
-      return 'id-' + Date.now()
+      return String(this.lists.length+1)
     },
     handleNewCol(name) {
       let newId = this.generateId();
@@ -106,7 +106,6 @@ export default {
           list.cards.push(newCard);
         }
       })
-      console.log(newCard);
     }
   },
   mounted() {
