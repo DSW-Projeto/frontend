@@ -1,8 +1,8 @@
 <template>
   <v-app>
     <div class="background" id="app">
-      <NavBar />
-      <div :class="['appcontainer', { wide: isWide }, 'secondary']">
+      <NavBar></NavBar>
+      <div :class="['appcontainer', { wide: isWide }]">
         <LoginC v-if="!userLoggedIn" />
         <v-theme-provider v-if="userLoggedIn" :dark="true">
           <router-view @update:wide="handleWide"></router-view>
@@ -22,7 +22,7 @@ export default {
   },
   data() {
     return {
-      userLoggedIn: false,
+      userLoggedIn: true,
       isWide: false,
     }
   },

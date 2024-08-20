@@ -1,5 +1,5 @@
 <template>
-  <div class="log-container">
+  <div class="log-container secondary">
     <div class="login-form">
       <h1 class="login-title">REALIZE O LOGIN</h1>
       <div class="form">
@@ -319,6 +319,7 @@ export default {
   color: var(--texto);
   display: flex;
   justify-content: center;
+  border-radius: 7px;
 }
 
 h1,
