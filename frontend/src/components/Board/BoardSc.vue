@@ -47,8 +47,10 @@
     </v-dialog>
     <div class="boardScreenRotate">
       <BoardCreateCol @form-submitted="handleNewCol" class="createCol"></BoardCreateCol>
-      <div class="cols" v-for="(list, index) in lists" :key="index">
-        <BoardCol @delete-col="handleDeleteCol" @rename-col="handleNewColName" @send-card="handleNewCard" :id="list.id" :title="list.title" :cards="list.cards"
+      <div class="cols" v-for="(list, index) in sortedLists" :key="index">
+        <BoardCol @edit-card="handleEditCard" @delete-card="handleDeleteCard" @card-to-right="handleCardRight" @card-to-left="handleCardLeft" @move-to-right="handleMoveRight"
+          @move-to-left="handleMoveLeft" @delete-col="handleDeleteCol" @rename-col="handleNewColName"
+          @send-card="handleNewCard" :id="list.id" :title="list.title" :cards="list.cards"
           class="cmpCol secondary primary--text"></BoardCol>
       </div>
     </div>
@@ -66,6 +68,70 @@ export default {
     BoardCreateCol
   },
   methods: {
+    handleEditCard(data){
+      console.log(data)
+      const list = this.lists.find(col => col.id === data.colId);
+      const card = list.cards.find(card => card.index === data.cardIndex);
+      const formatter = new Intl.DateTimeFormat('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+      const today = formatter.format(Date.now());
+
+      card.description = data.description;
+      card.lstEdition = today;
+    },
+    handleDeleteCard(data){
+      const list = this.lists.find(col => col.id === data.colId);
+      list.cards = list.cards.filter(card => card.index !== data.cardIndex);
+      console.log(data)
+      list.cards.forEach((card, index) => {
+          card.index = index + 1
+        });
+    },
+    moveCard(data, newListId) {
+      const newList = this.lists.find(col => col.id === newListId);
+      if (newList) {
+        const oldList = this.lists.find(col => col.id === data.colId);
+        let card = oldList.cards.find(card => card.index === data.cardIndex);
+        const newCardIndex = newList.cards.length + 1;
+        newList.cards.push(card);
+        oldList.cards = oldList.cards.filter(card => card.index !== data.cardIndex);
+        card.index = newCardIndex;
+        oldList.cards.forEach((card, index) => {
+          card.index = index + 1
+        });
+      }
+    },
+    handleCardLeft(data) {
+      const newListId = (parseInt(data.colId) - 1).toString();
+      this.moveCard(data, newListId)
+    },
+    handleCardRight(data) {
+      const newListId = (parseInt(data.colId) + 1).toString();
+      this.moveCard(data, newListId)
+    },
+    handleMoveLeft(id) {
+      let leftId = (parseInt(id) - 1).toString();
+      const leftCol = this.lists.find(col => col.id === leftId)
+      if (leftCol) {
+        const col = this.lists.find(col => col.id === id)
+        col.id = (parseInt(id) - 1).toString()
+        leftCol.id = id
+      }
+    },
+    handleMoveRight(id) {
+      let rightId = (parseInt(id) + 1).toString();
+      const rightCol = this.lists.find(col => col.id === rightId)
+      if (rightCol) {
+        const col = this.lists.find(col => col.id === id)
+        if (col) {
+          col.id = (parseInt(id) + 1).toString()
+          rightCol.id = id
+        }
+      }
+    },
     applyColor() {
       this.$vuetify.theme.themes.dark.primary = this.txtColor;
       this.$vuetify.theme.themes.dark.secondary = this.colColor;
@@ -73,42 +139,50 @@ export default {
       this.$vuetify.theme.themes.dark.background = this.backColor;
       this.showColorPicker = false;
     },
-    generateId() {
-      return String(this.lists.length+1)
+    generateColId() {
+      return String(this.lists.length + 1)
     },
     handleNewCol(name) {
-      let newId = this.generateId();
+      let newId = this.generateColId();
       let newCol = { id: newId, title: name, cards: [] };
-      this.lists.unshift(newCol);
+      this.lists.push(newCol);
     },
-    handleNewColName(data){
-      this.lists.forEach((list)=>{
-        if(list.id === data.id){
+    handleNewColName(data) {
+      this.lists.forEach((list) => {
+        if (list.id === data.id) {
           list.title = data.title;
         }
       })
     },
-    handleDeleteCol(id){
+    handleDeleteCol(id) {
       this.lists = this.lists.filter(list => list.id !== id);
+      this.lists.forEach((list, index) => {
+        list.id = (index + 1).toString();
+      });
     },
     handleNewCard(data) {
+      const list = this.lists.find(list => list.id === data.id);
       const formatter = new Intl.DateTimeFormat('pt-BR', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'
       });
-      let today = formatter.format(Date.now());
-      let newCard = {
+      const today = formatter.format(Date.now());
+      const index = list.cards.length + 1;
+      const newCard = {
         description: data.description,
         author: 'Thiago',
         lstEdition: '-',
-        creation: today
+        creation: today,
+        index: index,
       };
-      this.lists.forEach((list) => {
-        if (list.id === data.id) {
-          list.cards.push(newCard);
-        }
-      })
+      list.cards.push(newCard);
+    },
+    sortedCards(list) {
+      if (!list || !list.cards) return [];
+      return list.cards.slice().sort((a, b) => {
+        return a.index - b.index;
+      });
     }
   },
   mounted() {
@@ -122,9 +196,22 @@ export default {
       colColor: '#FF0000',
       backColor: '#FF0000',
       lists: [
-
+        {
+          id: '2', title: 'aaaaa', cards: [{
+            description: 'teste', author: 'Thiago', lstEdition: '-', creation: '-', index: 1
+          }, {
+            description: 'teste', author: 'Thiago', lstEdition: '-', creation: '-', index: 2
+          }]
+        }, { id: '1', title: 'bbbbb', cards: [] }, { id: '3', title: 'cccccc', cards: [] }
       ]
     }
+  },
+  computed: {
+    sortedLists() {
+      return this.lists.slice().sort((a, b) => {
+        return parseInt(a.id) - parseInt(b.id);
+      });
+    },
   }
 }
 </script>

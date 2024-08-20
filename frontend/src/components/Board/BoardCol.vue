@@ -1,9 +1,14 @@
 <template>
     <div class="col">
-        <h2 class="title">{{ title }}</h2>
+        <div class="colHeader">
+            <v-btn @click="moveLeft" depressed class="secondary"><v-icon>arrow_left</v-icon></v-btn>
+            <h2 class="title">{{ title }}</h2>
+            <v-btn @click="moveRight" depressed class="secondary"><v-icon>arrow_right</v-icon></v-btn>
+        </div>
         <div v-for="(card, index) in cards" class="card" :key="index">
-            <BoardCard class="tertiary" :description="card.description" :author="card.author"
-                :lstEdition="card.lstEdition" :creation="card.creation"></BoardCard>
+            <BoardCard @edit-card="handleEditCard" @delete-card="handleDeleteCard" @card-to-right="handleCardRight" @card-to-left="handleCardLeft" class="tertiary" :index="card.index"
+                :description="card.description" :author="card.author" :lstEdition="card.lstEdition"
+                :creation="card.creation"></BoardCard>
         </div>
         <div class="colOptions">
             <div class="rowOptions">
@@ -24,14 +29,32 @@ import BoardColDelete from './BoardColDelete.vue';
 export default {
     name: 'BoardCol',
     methods: {
+        handleEditCard(data){
+            this.$emit('edit-card', {colId: this.id, description: data.description, cardIndex: data.cardIndex});
+        },
+        handleDeleteCard(cardIndex){
+            this.$emit('delete-card',{colId:this.id, cardIndex: cardIndex});
+        },
         handleNewCard(newCardDescription) {
             this.$emit('send-card', { description: newCardDescription, id: this.id });
         },
         handleNewColName(newColName) {
-            this.$emit('rename-col', { title: newColName, id: this.id })
+            this.$emit('rename-col', { title: newColName, id: this.id });
         },
-        handleDeleteCol(){
-            this.$emit('delete-col', this.id)
+        handleDeleteCol() {
+            this.$emit('delete-col', this.id);
+        },
+        handleCardLeft(cardIndex) {
+            this.$emit('card-to-left', { colId: this.id, cardIndex: cardIndex });
+        },
+        handleCardRight(cardIndex) {
+            this.$emit('card-to-right', {colId: this.id, cardIndex: cardIndex});
+        },
+        moveLeft() {
+            this.$emit('move-to-left', this.id);
+        },
+        moveRight() {
+            this.$emit('move-to-right', this.id);
         }
     },
 
@@ -67,6 +90,12 @@ export default {
 <style scoped>
 @import '../../assets/Styles.css';
 
+.colHeader {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
 .title {
     margin-bottom: 2vh;
 }
@@ -95,7 +124,8 @@ export default {
     display: flex;
     margin-bottom: 7px;
 }
-.delBtn{
+
+.delBtn {
     width: 100%;
 }
 </style>
