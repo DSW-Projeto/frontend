@@ -21,26 +21,35 @@ const router = new Router({
     }, {
       path: '/list',
       name: 'frame-list',
-      component: BoardList
+      component: BoardList,
+      meta: { requiresAuth: true }
     },
     {
       path: '/list/:id',
       name: 'board',
       component: BoardSc,
-      props:true
+      props: true,
+      meta: { requiresAuth: true }
     }]
-})
+});
+
+router.beforeEach((to,from,next) => {
+  const isAuthenticated = localStorage.getItem('userId') !== null;
+
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (isAuthenticated) {
+      next();
+    } else {
+      next('/login');
+    }
+  } else {
+    next();
+  }
+});
+
 
 new Vue({
-  data: {
-    credentials: null,
-    config: {
-      url: "http://localhost:8081"
-    }
-  },
-
-  el: '#app',
-  render: h => h(App),
   vuetify,
-  router
-})
+  router,
+  render: h => h(App),
+}).$mount('#app');

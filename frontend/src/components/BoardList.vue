@@ -34,10 +34,9 @@
 </template>
 
 <script>
+import axios from 'axios';
 
-//let data1 = new Date(2024, 8, 9);
 let data2 = new Date(2022, 8, 9);
-//let data3 = new Date(2020, 8, 9);
 
 
 export default {
@@ -63,7 +62,7 @@ export default {
                 }
                 this.boards.unshift(newBoard)
                 this.showBoardCreator = false;
-                this.newBoardName ='';
+                this.newBoardName = '';
             }
         }
     },
@@ -99,6 +98,22 @@ export default {
 
             ],
         }
+    },
+    mounted() {
+        axios.get('http://localhost:3001/quadro', {
+            headers: {
+                'Autorizacao': localStorage.getItem('authToken'),
+                'UsuarioId': localStorage.getItem('_id')
+            }
+        }).then(response => {
+            const { token, _id } = response.data;
+            localStorage.setItem('authToken', token);
+            localStorage.setItem('userId', _id);
+            this.$emit('login');
+            this.$router.push('/list');
+        }).catch(error => {
+            console.error('Erro:', error);
+        });
     },
     computed: {
         minLength() {

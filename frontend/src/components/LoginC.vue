@@ -8,11 +8,13 @@
             <v-row>
               <!-- Login -->
               <v-col cols="12" sm="6" md="6">
-                <v-text-field :error="emailError" :errorMessages="emailErrorMessages" v-model="email" dark autocomplete="null" no-autocomplete
-                  placeholder="exemplo@mail.com" label="Email" filled required></v-text-field>
+                <v-text-field :error="emailError" :errorMessages="emailErrorMessages" v-model="email" dark
+                  autocomplete="null" no-autocomplete placeholder="exemplo@mail.com" label="Email" filled
+                  required></v-text-field>
               </v-col>
               <v-col cols="12" sm="6" md="6">
-                <v-text-field :error="passwordError" :errorMessages="passwordErrorMessages"  dark filled v-model="password" placeholder="Senha" label="Senha" required></v-text-field>
+                <v-text-field :error="passwordError" :errorMessages="passwordErrorMessages" dark filled
+                  v-model="password" placeholder="Senha" label="Senha" required></v-text-field>
               </v-col>
             </v-row>
             <v-row>
@@ -25,11 +27,10 @@
         <!-- Registro -->
         <v-form>
           <v-container>
-            <v-text-field :error="usernameError" :error-messages="usernameErrorMessages" dark filled
-              v-model="username" placeholder="Usuário" label="Usuário" required></v-text-field>
-            <v-text-field filled  :error="registerEmailError"
-              :error-messages="registerEmailErrorMessages" v-model="registerEmail" placeholder="Email" label="Email"
-              required></v-text-field>
+            <v-text-field :error="usernameError" :error-messages="usernameErrorMessages" dark filled v-model="username"
+              placeholder="Usuário" label="Usuário" required></v-text-field>
+            <v-text-field filled :error="registerEmailError" :error-messages="registerEmailErrorMessages"
+              v-model="registerEmail" placeholder="Email" label="Email" required></v-text-field>
             <v-text-field :error="registerPasswordError" :error-messages="registerPasswordErrorMessages" dark filled
               v-model="registerPassword" placeholder="Senha" label="Senha" required></v-text-field>
             <v-text-field :error="repeatPasswordError" :error-messages="repeatPasswordErrorMessages" dark filled
@@ -87,7 +88,7 @@
 </template>
 
 <script>
-
+import axios from 'axios';
 export default {
   name: 'LoginC',
   data() {
@@ -107,14 +108,14 @@ export default {
       keyWord: '',
       repeatPassword: '',
       registerPassword: '',
-      registerEmail:'',
+      registerEmail: '',
 
       //login
       passwordError: false,
       passwordErrorMessages: [],
       password: '',
-      emailError:false,
-      emailErrorMessages:[],
+      emailError: false,
+      emailErrorMessages: [],
       email: '',
 
       //recuperar senha
@@ -128,11 +129,29 @@ export default {
   methods: {
 
     //Login e validações
-    login(){
-      this.validateEmail()
-      this.validadePassword()
+    async login() {
+      console.log(this.validatePassword())
+      if (
+        this.validateEmail() &&
+        this.validatePassword()
+      ) {
+        let loginForm = {
+          email: this.email,
+          senha: this.password
+        }
+        axios.post('http://localhost:3001/usuario/login', loginForm).then(response => {
+          console.log(response.data);
+          const { token, _id } = response.data;
+          localStorage.setItem('authToken', token);
+          localStorage.setItem('userId', _id);
+          this.$emit('login');
+          this.$router.push('/list');
+        }).catch(error => {
+          console.error('Erro:', error);
+        });
+      }
     },
-    validadePassword(){
+    validatePassword() {
       const rules = this.passwordRules;
       this.passwordErrorMessages = [];
 
@@ -143,6 +162,7 @@ export default {
         }
       }
       this.passwordError = this.passwordErrorMessages.length > 0;
+      return !this.passwordError;
     },
     validateEmail() {
       const rules = this.emailRules;
@@ -155,8 +175,9 @@ export default {
         }
       }
       this.emailError = this.emailErrorMessages.length > 0;
+      return !this.emailError;
     },
-    
+
 
     //Registro e validações
     validateKeyWord() {
@@ -170,6 +191,7 @@ export default {
         }
       }
       this.keyWordError = this.keyWordErrorMessages.length > 0;
+      return !this.keyWordError;
     },
     validateRegisterEmail() {
       const rules = this.emailRules;
@@ -182,6 +204,7 @@ export default {
         }
       }
       this.registerEmailError = this.registerEmailErrorMessages.length > 0;
+      return !this.registerEmailError;
     },
     validateRegisterPassword() {
       const rules = this.passwordRules;
@@ -194,6 +217,7 @@ export default {
         }
       }
       this.registerPasswordError = this.registerPasswordErrorMessages.length > 0;
+      return !this.registerPasswordError;
     },
     validateRegisterRepeatPassword() {
       const rules = this.repeatPasswordRules;
@@ -206,6 +230,7 @@ export default {
         }
       }
       this.repeatPasswordError = this.repeatPasswordErrorMessages.length > 0;
+      return !this.repeatPasswordError;
     },
     validateUsername() {
       const rules = this.usernameRules;
@@ -218,13 +243,32 @@ export default {
         }
       }
       this.usernameError = this.usernameErrorMessages.length > 0;
+      return !this.usernameError;
     },
-    registrar() {
-      this.validateRegisterEmail()
-      this.validateKeyWord()
-      this.validateRegisterPassword()
-      this.validateRegisterRepeatPassword()
-      this.validateUsername()
+    async registrar() {
+      if (
+        this.validateRegisterEmail() &&
+        this.validateKeyWord() &&
+        this.validateRegisterPassword() &&
+        this.validateRegisterRepeatPassword() &&
+        this.validateUsername()
+      ) {
+        let registro = {
+          nome: this.username,
+          email: this.registerEmail,
+          senha: this.registerPassword,
+          palavraChave: this.keyWord
+        }
+        axios.post('http://localhost:3001/usuario/', registro).then(response => {
+          const { token, _id } = response.data;
+          localStorage.setItem('authToken', token);
+          localStorage.setItem('userId', _id);
+          this.$emit('login');
+          this.$router.push('/list');
+        }).catch(error => {
+          console.error('Erro:', error);
+        });
+      }
     },
 
     //Recuperar senha
@@ -270,18 +314,19 @@ export default {
         v => v.length >= 8 || 'A senha deve ter pelo menos 8 caracteres.',
         v => v.length <= 15 || 'A senha deve ter no máximo 15 caracteres.',
         v => /^[a-zA-Z_0-9]+$/.test(v) || 'A senha só pode conter letras, números e underscore.',
+        v => /^(?=.*[A-Z])(?=.*\d).{8,}$/.test(v) || 'A senha precisa ter uma letra maiúscula e um número.',
         v => v === this.repeatPassword || 'As senhas não combinam.'
       ]
     },
     repeatPasswordRules() {
       return [
         v => !!v || 'O campo repetir senha é obrigatório.',
-        v => v === this.password || 'As senhas não combinam.'
+        v => v === this.registerPassword || 'As senhas não combinam.'
       ]
     },
     usernameRules() {
       return [
-        v => !!v || 'O campo repetir username é obrigatório.',
+        v => !!v || 'O campo username é obrigatório.',
         v => /^[a-zA-Z_0-9]+$/.test(v) || 'O username só pode conter letras, números e underscore.',
         v => v.length >= 5 || 'O username deve ter ao menos 5 caracteres.'
       ]

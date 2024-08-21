@@ -3,7 +3,7 @@
     <div class="background" id="app">
       <NavBar></NavBar>
       <div :class="['appcontainer', { wide: isWide }]">
-        <LoginC v-if="!userLoggedIn" />
+        <LoginC @login="userLoggedIn = true" v-if="!userLoggedIn" />
         <v-theme-provider v-if="userLoggedIn" :dark="true">
           <router-view @update:wide="handleWide"></router-view>
         </v-theme-provider>
@@ -20,9 +20,15 @@ export default {
   components: {
     NavBar, LoginC
   },
+  mounted(){
+    this.userLoggedIn = localStorage.getItem('authToken') !== null
+    if(this.userLoggedIn){
+      this.$router.push('/list');
+    }
+  },
   data() {
     return {
-      userLoggedIn: true,
+      userLoggedIn: false,
       isWide: false,
     }
   },
