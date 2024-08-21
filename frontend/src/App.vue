@@ -1,9 +1,9 @@
 <template>
   <v-app>
     <div class="background" id="app">
-      <NavBar></NavBar>
+      <NavBar @logout="handleLogout" :username="username" :userLoggedIn="this.userLoggedIn"></NavBar>
       <div :class="['appcontainer', { wide: isWide }]">
-        <LoginC @login="userLoggedIn = true" v-if="!userLoggedIn" />
+        <LoginC @login="handleLogin" v-if="!userLoggedIn" />
         <v-theme-provider v-if="userLoggedIn" :dark="true">
           <router-view @update:wide="handleWide"></router-view>
         </v-theme-provider>
@@ -23,19 +23,30 @@ export default {
   mounted(){
     this.userLoggedIn = localStorage.getItem('authToken') !== null
     if(this.userLoggedIn){
+      if(this.$route.path === '/')
       this.$router.push('/list');
+      this.username = localStorage.getItem('username');
     }
   },
   data() {
     return {
       userLoggedIn: false,
       isWide: false,
+      username: ''
     }
   },
   methods: {
     handleWide(value) {
       this.isWide = value;
-    }
+    },
+    handleLogin(){
+      this.username = localStorage.getItem('username');
+      this.userLoggedIn = true;
+    },
+    handleLogout(){
+      this.username = '';
+      this.userLoggedIn = false;
+    },
   },
   watch: {
     $route(to) {
@@ -43,6 +54,12 @@ export default {
         this.isWide = true;
       } else {
         this.isWide = false;
+      }
+      if(to.name !== 'lists/:id'){
+      this.$vuetify.theme.themes.dark.primary = '#E0E0E0';
+      this.$vuetify.theme.themes.dark.secondary = '#303030';
+      this.$vuetify.theme.themes.dark.tertiary = '#444';
+      this.$vuetify.theme.themes.dark.background = '#1a1a1a';
       }
     }
   }

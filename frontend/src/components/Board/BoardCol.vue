@@ -6,9 +6,9 @@
             <v-btn @click="moveRight" depressed class="secondary"><v-icon>arrow_right</v-icon></v-btn>
         </div>
         <div v-for="(card, index) in cards" class="card" :key="index">
-            <BoardCard @edit-card="handleEditCard" @delete-card="handleDeleteCard" @card-to-right="handleCardRight" @card-to-left="handleCardLeft" class="tertiary" :index="card.index"
-                :description="card.description" :author="card.author" :lstEdition="card.lstEdition"
-                :creation="card.creation"></BoardCard>
+            <BoardCard @edit-card="handleEditCard" @delete-card="handleDeleteCard" @card-to-right="handleCardRight" @card-to-left="handleCardLeft" class="tertiary" :index="card.posicao"
+                :description="card.conteudo" :author="'-'" :lstEdition="card.ultimaModificacao"
+                :creation="card.dataCriacao"></BoardCard>
         </div>
         <div class="colOptions">
             <div class="rowOptions">
@@ -30,31 +30,31 @@ export default {
     name: 'BoardCol',
     methods: {
         handleEditCard(data){
-            this.$emit('edit-card', {colId: this.id, description: data.description, cardIndex: data.cardIndex});
+            this.$emit('edit-card', {colId: this.index, description: data.description, cardIndex: data.cardIndex});
         },
         handleDeleteCard(cardIndex){
-            this.$emit('delete-card',{colId:this.id, cardIndex: cardIndex});
+            this.$emit('delete-card',{colId:this.index, cardIndex: cardIndex});
         },
         handleNewCard(newCardDescription) {
-            this.$emit('send-card', { description: newCardDescription, id: this.id });
+            this.$emit('send-card', { description: newCardDescription, idColuna: this._id ,index: this.index });
         },
         handleNewColName(newColName) {
-            this.$emit('rename-col', { title: newColName, id: this.id });
+            this.$emit('rename-col', { title: newColName, index: this.index });
         },
         handleDeleteCol() {
-            this.$emit('delete-col', this.id);
+            this.$emit('delete-col', this.index);
         },
         handleCardLeft(cardIndex) {
-            this.$emit('card-to-left', { colId: this.id, cardIndex: cardIndex });
+            this.$emit('card-to-left', { colId: this.index, cardIndex: cardIndex });
         },
         handleCardRight(cardIndex) {
-            this.$emit('card-to-right', {colId: this.id, cardIndex: cardIndex});
+            this.$emit('card-to-right', {colId: this.index, cardIndex: cardIndex});
         },
         moveLeft() {
-            this.$emit('move-to-left', this.id);
+            this.$emit('move-to-left', this.index);
         },
         moveRight() {
-            this.$emit('move-to-right', this.id);
+            this.$emit('move-to-right', this.index);
         }
     },
 
@@ -67,7 +67,11 @@ export default {
             type: String,
             required: true
         },
-        id: {
+        index: {
+            type: String,
+            required: true
+        },
+        _id:{
             type: String,
             required: true
         }

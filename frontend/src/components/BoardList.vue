@@ -24,9 +24,9 @@
             :hide-default-footer="true">
             <template v-slot:item="{ item }">
                 <tr>
-                    <td @click="goToPage(item.id)">{{ item.screenName }}</td>
-                    <td @click="goToPage(item.id)">{{ item.autor }}</td>
-                    <td @click="goToPage(item.id)">{{ item.dataMod }}</td>
+                    <td @click="goToPage(item._id)">{{ item.nome }}</td>
+                    <td @click="goToPage(item._id)">-</td>
+                    <td @click="goToPage(item._id)">{{ item.ultimaModificacao }}</td>
                 </tr>
             </template>
         </v-data-table>
@@ -36,33 +36,42 @@
 <script>
 import axios from 'axios';
 
-let data2 = new Date(2022, 8, 9);
-
 
 export default {
     name: 'Frame-List',
     methods: {
-        goToPage(id) {
-            this.$router.push(`/list/${id}`);
+        goToPage(_id) {
+            this.$router.push(`/list/${_id}`);
         },
-        createNewBoard() {
-            if (this.isValid) {
-                const formatter = new Intl.DateTimeFormat('pt-BR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                });
-                let today = formatter.format(Date.now());
-                let newId = this.boards.length + 1
-                let newBoard = {
-                    autor: 'Thiago Sousa',
-                    dataMod: today,
-                    screenName: this.newBoardName,
-                    id: newId
+        async buscarQuadros() {
+            axios.get('http://localhost:3001/quadro', {
+                headers: {
+                    'Autorizacao': localStorage.getItem('authToken'),
+                    'UsuarioId': localStorage.getItem('userId')
                 }
-                this.boards.unshift(newBoard)
-                this.showBoardCreator = false;
+            }).then(response => {
+                this.boards = response.data
+                this.boards.forEach((board) => {
+                    board.ultimaModificacao = new Date(board.ultimaModificacao);
+                    board.ultimaModificacao = board.ultimaModificacao.toLocaleDateString('pt-BR');
+                })
+            }).catch(error => {
+                console.error('Erro:', error);
+            });
+        },
+        async createNewBoard() {
+            if (this.isValid) {
+                await axios.post('http://localhost:3001/quadro', { nome: this.newBoardName }, {
+                    headers: {
+                        'Autorizacao': localStorage.getItem('authToken'),
+                        'UsuarioId': localStorage.getItem('userId')
+                    }
+                }).then().catch(error => {
+                    console.error('Erro:', error);
+                });
+                await this.buscarQuadros();
                 this.newBoardName = '';
+                this.showBoardCreator = false;
             }
         }
     },
@@ -90,10 +99,6 @@ export default {
             ],
             boards: [
                 {
-                    autor: 'Thiago Sousa',
-                    dataMod: data2.toLocaleDateString('pt-BR'),
-                    screenName: 'Teste',
-                    id: 1
                 },
 
             ],
@@ -103,14 +108,14 @@ export default {
         axios.get('http://localhost:3001/quadro', {
             headers: {
                 'Autorizacao': localStorage.getItem('authToken'),
-                'UsuarioId': localStorage.getItem('_id')
+                'UsuarioId': localStorage.getItem('userId')
             }
         }).then(response => {
-            const { token, _id } = response.data;
-            localStorage.setItem('authToken', token);
-            localStorage.setItem('userId', _id);
-            this.$emit('login');
-            this.$router.push('/list');
+            this.boards = response.data
+            this.boards.forEach((board) => {
+                board.ultimaModificacao = new Date(board.ultimaModificacao);
+                board.ultimaModificacao = board.ultimaModificacao.toLocaleDateString('pt-BR');
+            })
         }).catch(error => {
             console.error('Erro:', error);
         });

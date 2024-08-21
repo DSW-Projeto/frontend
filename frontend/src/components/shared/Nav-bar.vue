@@ -10,7 +10,7 @@
             </div>
         </div>
         <div class="rigth-nav">
-            <v-btn v-if="userLogged" @click="showAccount = true" class="secondary" depressed>Thiago</v-btn>
+            <v-btn v-if="userLoggedIn" @click="showAccount = true" class="secondary" depressed>{{ username }}</v-btn>
             <v-dialog v-model="showAccount" persistent max-width="30vw">
                 <v-container class="secondary">
                     <v-icon class="close-btn" @click="showAccount = false">close</v-icon>
@@ -24,6 +24,8 @@
                     <div class="user-btn">
                         <v-btn depressed class="tertiary"
                             @click="showAccount = false; showChangePass = true"><span>Mudar Senha</span></v-btn>
+                        <v-btn depressed class="error"
+                            @click="showAccount = false; logout()"><span>Logout</span></v-btn>
                     </div>
                 </v-container>
             </v-dialog>
@@ -32,7 +34,8 @@
                     <v-form @submit.prevent="changePass" v-model="isValid">
                         <v-row>
                             <v-col cols="12" md="12">
-                                <v-text-field :error="passwordError" :errorMessages="passwordErrorMessages" v-model="newPassword" label="Nova Senha" required>
+                                <v-text-field :error="passwordError" :errorMessages="passwordErrorMessages"
+                                    v-model="newPassword" label="Nova Senha" required>
                                 </v-text-field>
                                 <v-text-field v-model="repeatNewPassword" label="Repetir Nova Senha" required>
                                 </v-text-field>
@@ -51,6 +54,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
     data() {
         return {
@@ -59,16 +64,38 @@ export default {
             isValid: false,
             lstLogged: '18/08/2024 - 20:45',
             email: 'teste@gmail.com',
-            username: 'Thiago',
             currentColor: 'one',
-            userLogged: true,
             showAccount: false,
             showChangePass: false,
             newPassword: '',
             repeatNewPassword: '',
         }
     },
+    props: {
+        userLoggedIn: {
+            type: Boolean,
+            required: true
+        },
+        username: {
+            type: String,
+            required: true
+        },
+    },
     methods: {
+        async logout() {
+            await axios.get('http://localhost:3001/usuario/logout', {
+                headers: {
+                    'Autorizacao': localStorage.getItem('authToken'),
+                    'UsuarioId': localStorage.getItem('userId')
+                }
+            }).then(
+                localStorage.clear(),
+                this.$router.push('/login'),
+                this.$emit('logout')
+            ).catch(error => {
+                console.error('Erro:', error);
+            });
+        },
         passwordValidation() {
             this.passwordErrorMessages = [];
             const rules = this.passwordRules;
@@ -82,7 +109,7 @@ export default {
             return !this.passwordError;
         },
         changePass() {
-            if(this.passwordValidation()){
+            if (this.passwordValidation()) {
                 this.showChangePass = false;
             }
         },

@@ -48,10 +48,12 @@
     <div class="boardScreenRotate">
       <BoardCreateCol @form-submitted="handleNewCol" class="createCol"></BoardCreateCol>
       <div class="cols" v-for="(list, index) in sortedLists" :key="index">
-        <BoardCol @edit-card="handleEditCard" @delete-card="handleDeleteCard" @card-to-right="handleCardRight" @card-to-left="handleCardLeft" @move-to-right="handleMoveRight"
-          @move-to-left="handleMoveLeft" @delete-col="handleDeleteCol" @rename-col="handleNewColName"
-          @send-card="handleNewCard" :id="list.id" :title="list.title" :cards="list.cards"
-          class="cmpCol secondary primary--text"></BoardCol>
+        <BoardCol @edit-card="handleEditCard" @delete-card="handleDeleteCard" @card-to-right="handleCardRight"
+          @card-to-left="handleCardLeft" @move-to-right="handleMoveRight" @move-to-left="handleMoveLeft"
+          @delete-col="handleDeleteCol" @rename-col="handleNewColName" @send-card="handleNewCard"
+          :index="list.posicao.toString()" :_id="list._id" :title="list.nome" :cards="list.cartoes"
+          class="cmpCol secondary primary--text">
+        </BoardCol>
       </div>
     </div>
   </div>
@@ -60,6 +62,7 @@
 <script>
 import BoardCol from './BoardCol.vue';
 import BoardCreateCol from './BordCreateCol.vue';
+import axios from 'axios';
 
 export default {
   name: 'BoardSc',
@@ -68,40 +71,93 @@ export default {
     BoardCreateCol
   },
   methods: {
-    handleEditCard(data){
-      console.log(data)
-      const list = this.lists.find(col => col.id === data.colId);
-      const card = list.cards.find(card => card.index === data.cardIndex);
+    async saveState() {
+      const boardId = this.$route.params.id;
+      this.lists = this.colSorter();
+      let listsAux = this.lists;
+      listsAux.forEach((coluna) => {
+        coluna.cartoes.forEach((card) => {
+          const [dia, mes, ano] = card.dataCriacao.split('/');
+          card.dataCriacao = new Date(ano, mes - 1, dia);
+        })
+      });
+      await axios.put('http://localhost:3001/quadro/' + boardId, {
+        nome: this.nome,
+        corPrimaria: this.$vuetify.theme.themes.dark.primary,
+        corSecundaria: this.$vuetify.theme.themes.dark.secondary,
+        corTerciaria: this.$vuetify.theme.themes.dark.tertiary,
+        corFundo: this.$vuetify.theme.themes.dark.background,
+        colunas: listsAux,
+      }, {
+        headers: {
+          'Autorizacao': localStorage.getItem('authToken'),
+          'UsuarioId': localStorage.getItem('userId')
+        }
+      }).then().catch(error => {
+        console.error('Erro:', error);
+      });
+      await this.buscarCols();
+    },
+    async buscarCols() {
+      const boardId = this.$route.params.id;
+      await axios.get('http://localhost:3001/quadro/detalhe/' + boardId, {
+        headers: {
+          'Autorizacao': localStorage.getItem('authToken'),
+          'UsuarioId': localStorage.getItem('userId')
+        }
+      }).then(response => {
+        this.$vuetify.theme.themes.dark.tertiary = response.data.corTerciaria;
+        this.$vuetify.theme.themes.dark.primary = response.data.corPrimaria;
+        this.$vuetify.theme.themes.dark.secondary = response.data.corSecundaria;
+        this.$vuetify.theme.themes.dark.background = response.data.corFundo;
+        this.lists = response.data.colunas;
+        this.nome = response.data.nome;
+
+        this.lists.forEach((list) => {
+          list.cartoes.forEach((card) => {
+            card.dataCriacao = new Date(card.dataCriacao);
+            card.dataCriacao = card.dataCriacao.toLocaleDateString('pt-BR');
+            card.ultimaModificacao = new Date(card.ultimaModificacao);
+            card.ultimaModificacao = card.ultimaModificacao.toLocaleDateString('pt-BR');
+          });
+        })
+      }).catch(error => {
+        console.error('Erro:', error);
+      });
+    },
+    async handleEditCard(data) {
+      const list = this.lists.find(col => col.posicao === data.colId.toString());
+      const card = list.cartoes.find(card => card.posicao === data.cardIndex);
       const formatter = new Intl.DateTimeFormat('pt-BR', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'
       });
       const today = formatter.format(Date.now());
-
-      card.description = data.description;
-      card.lstEdition = today;
+      card.conteudo = data.description;
+      card.ultimaModificacao = today;
+      await this.saveState();
     },
-    handleDeleteCard(data){
+    handleDeleteCard(data) {
       const list = this.lists.find(col => col.id === data.colId);
       list.cards = list.cards.filter(card => card.index !== data.cardIndex);
-      console.log(data)
       list.cards.forEach((card, index) => {
-          card.index = index + 1
-        });
+        card.index = index + 1
+      });
     },
     moveCard(data, newListId) {
-      const newList = this.lists.find(col => col.id === newListId);
+      const newList = this.lists.find(col => col.posicao === newListId);
       if (newList) {
-        const oldList = this.lists.find(col => col.id === data.colId);
-        let card = oldList.cards.find(card => card.index === data.cardIndex);
-        const newCardIndex = newList.cards.length + 1;
-        newList.cards.push(card);
-        oldList.cards = oldList.cards.filter(card => card.index !== data.cardIndex);
-        card.index = newCardIndex;
-        oldList.cards.forEach((card, index) => {
-          card.index = index + 1
+        const oldList = this.lists.find(col => col.posicao === data.colId);
+        let card = oldList.cartoes.find(card => card.posicao === data.cardIndex);
+        const newCardIndex = newList.cartoes.length + 1;
+        newList.cartoes.push(card);
+        oldList.cartoes = oldList.cartoes.filter(card => card.posicao !== data.cardIndex);
+        card.posicao = newCardIndex;
+        oldList.cartoes.forEach((card, index) => {
+          card.posicao = index + 1
         });
+        this.saveState();
       }
     },
     handleCardLeft(data) {
@@ -112,24 +168,24 @@ export default {
       const newListId = (parseInt(data.colId) + 1).toString();
       this.moveCard(data, newListId)
     },
-    handleMoveLeft(id) {
-      let leftId = (parseInt(id) - 1).toString();
-      const leftCol = this.lists.find(col => col.id === leftId)
+    async handleMoveLeft(index) {
+      let leftIndex = (parseInt(index) - 1).toString();
+      const leftCol = this.lists.find(col => col.posicao === leftIndex)
       if (leftCol) {
-        const col = this.lists.find(col => col.id === id)
-        col.id = (parseInt(id) - 1).toString()
-        leftCol.id = id
+        const col = this.lists.find(col => col.posicao === index)
+        col.posicao = (parseInt(index) - 1).toString()
+        leftCol.posicao = index
+        await this.saveState();
       }
     },
-    handleMoveRight(id) {
-      let rightId = (parseInt(id) + 1).toString();
-      const rightCol = this.lists.find(col => col.id === rightId)
+    async handleMoveRight(index) {
+      let rightIndex = (parseInt(index) + 1).toString();
+      const rightCol = this.lists.find(col => col.posicao === rightIndex)
       if (rightCol) {
-        const col = this.lists.find(col => col.id === id)
-        if (col) {
-          col.id = (parseInt(id) + 1).toString()
-          rightCol.id = id
-        }
+        const col = this.lists.find(col => col.posicao === index)
+        col.posicao = (parseInt(index) + 1).toString()
+        rightCol.posicao = index
+        await this.saveState();
       }
     },
     applyColor() {
@@ -138,55 +194,73 @@ export default {
       this.$vuetify.theme.themes.dark.tertiary = this.cardColor;
       this.$vuetify.theme.themes.dark.background = this.backColor;
       this.showColorPicker = false;
+      this.saveState();
     },
     generateColId() {
       return String(this.lists.length + 1)
     },
-    handleNewCol(name) {
-      let newId = this.generateColId();
-      let newCol = { id: newId, title: name, cards: [] };
-      this.lists.push(newCol);
+    async handleNewCol(name) {
+      const boardId = this.$route.params.id;
+      const newId = this.generateColId();
+      await axios.post('http://localhost:3001/quadro/' + boardId + '/coluna/', { nome: name, posicao: newId }, {
+        headers: {
+          'Autorizacao': localStorage.getItem('authToken'),
+          'UsuarioId': localStorage.getItem('userId')
+        }
+      }).then(
+      ).catch(error => {
+        console.error('Erro:', error);
+      });
+      await this.buscarCols()
     },
-    handleNewColName(data) {
+    async handleNewColName(data) {
       this.lists.forEach((list) => {
-        if (list.id === data.id) {
-          list.title = data.title;
+        if (list.posicao === data.index) {
+          list.nome = data.title;
         }
       })
+      await this.saveState();
     },
-    handleDeleteCol(id) {
-      this.lists = this.lists.filter(list => list.id !== id);
-      this.lists.forEach((list, index) => {
-        list.id = (index + 1).toString();
+    handleDeleteCol(index) {
+      this.lists = this.lists.filter(list => list.posicao !== index);
+      this.lists.forEach((list, i) => {
+        list.posicao = (i + 1).toString();
       });
+      this.saveState();
     },
-    handleNewCard(data) {
-      const list = this.lists.find(list => list.id === data.id);
-      const formatter = new Intl.DateTimeFormat('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
+    async handleNewCard(data) {
+      const list = this.lists.find(list => list.posicao === data.index);
+      const index = list.cartoes.length + 1;
+      const boardId = this.$route.params.id;
+      await axios.post('http://localhost:3001/quadro/' + boardId + '/cartao/', {
+        conteudo: data.description,
+        posicao: index,
+        idColuna: data.idColuna
+      }, {
+        headers: {
+          'Autorizacao': localStorage.getItem('authToken'),
+          'UsuarioId': localStorage.getItem('userId')
+        }
+      }).then().catch(error => {
+        console.error('Erro:', error);
       });
-      const today = formatter.format(Date.now());
-      const index = list.cards.length + 1;
-      const newCard = {
-        description: data.description,
-        author: 'Thiago',
-        lstEdition: '-',
-        creation: today,
-        index: index,
-      };
-      list.cards.push(newCard);
+      this.buscarCols();
     },
     sortedCards(list) {
       if (!list || !list.cards) return [];
       return list.cards.slice().sort((a, b) => {
         return a.index - b.index;
       });
-    }
+    },
+    colSorter() {
+      return this.lists.slice().sort((a, b) => {
+        return parseInt(a.posicao) - parseInt(b.posicao);
+      });
+    },
   },
   mounted() {
     this.$emit('update:wide', true);
+    this.buscarCols();
   },
   data() {
     return {
@@ -195,21 +269,22 @@ export default {
       txtColor: '#FF0000',
       colColor: '#FF0000',
       backColor: '#FF0000',
+      nome: '',
       lists: [
-        {
+        /**{
           id: '2', title: 'aaaaa', cards: [{
             description: 'teste', author: 'Thiago', lstEdition: '-', creation: '-', index: 1
           }, {
             description: 'teste', author: 'Thiago', lstEdition: '-', creation: '-', index: 2
           }]
-        }, { id: '1', title: 'bbbbb', cards: [] }, { id: '3', title: 'cccccc', cards: [] }
+        }, { id: '1', title: 'bbbbb', cards: [] }, { id: '3', title: 'cccccc', cards: [] }  **/
       ]
     }
   },
   computed: {
     sortedLists() {
       return this.lists.slice().sort((a, b) => {
-        return parseInt(a.id) - parseInt(b.id);
+        return parseInt(a.posicao) - parseInt(b.posicao);
       });
     },
   }

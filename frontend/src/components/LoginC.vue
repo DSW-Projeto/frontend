@@ -141,9 +141,10 @@ export default {
         }
         axios.post('http://localhost:3001/usuario/login', loginForm).then(response => {
           console.log(response.data);
-          const { token, _id } = response.data;
+          const { token, _id, username} = response.data;
           localStorage.setItem('authToken', token);
           localStorage.setItem('userId', _id);
+          localStorage.setItem('username', username);
           this.$emit('login');
           this.$router.push('/list');
         }).catch(error => {
@@ -263,6 +264,7 @@ export default {
           const { token, _id } = response.data;
           localStorage.setItem('authToken', token);
           localStorage.setItem('userId', _id);
+          localStorage.setItem('username', this.username);
           this.$emit('login');
           this.$router.push('/list');
         }).catch(error => {
