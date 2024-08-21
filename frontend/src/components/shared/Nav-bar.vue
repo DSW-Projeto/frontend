@@ -5,7 +5,6 @@
             <div class="nav-list">
                 <v-btn @click="goToList" :class="{ 'disabled': isCurrentRoute('/list') }" depressed
                     class="secondary primary--text" :disabled="isCurrentRoute('/list')">Meus Quadros</v-btn>
-                <v-btn depressed class="secondary primary--text">Conta</v-btn>
                 <v-btn depressed class="secondary primary--text" @click="toggleTheme">Tema teste</v-btn>
             </div>
         </div>
@@ -37,13 +36,13 @@
                                 <v-text-field :error="passwordError" :errorMessages="passwordErrorMessages"
                                     v-model="newPassword" label="Nova Senha" required>
                                 </v-text-field>
-                                <v-text-field v-model="repeatNewPassword" label="Repetir Nova Senha" required>
+                                <v-text-field :error="oldPasswordError" :errorMessages="oldPasswordErrorMessages" v-model="oldPassword" label="Senha Antiga" required>
                                 </v-text-field>
                             </v-col>
                             <div class="btnCard">
                                 <v-btn @click="changePass">Aceitar</v-btn>
                                 <v-btn class="error"
-                                    @click="showChangePass = false; repeatNewPassword = ''; newPassword = ''">Cancelar</v-btn>
+                                    @click="showChangePass = false; oldPassword = ''; newPassword = ''">Cancelar</v-btn>
                             </div>
                         </v-row>
                     </v-form>
@@ -68,7 +67,9 @@ export default {
             showAccount: false,
             showChangePass: false,
             newPassword: '',
-            repeatNewPassword: '',
+            oldPassword: '',
+            oldPasswordError: false,
+            oldPasswordErrorMessages: []
         }
     },
     props: {
@@ -108,9 +109,37 @@ export default {
             this.passwordError = this.passwordErrorMessages.length > 0
             return !this.passwordError;
         },
-        changePass() {
-            if (this.passwordValidation()) {
+        oldPasswordValidation() {
+            console.log('teste')
+            this.oldPasswordErrorMessages = [];
+            const rules = this.passwordRules;
+            for (let rule of rules) {
+                const errorMessage = rule(this.oldPassword)
+                if (errorMessage !== true) {
+                    this.oldPasswordErrorMessages.push(errorMessage);
+                }
+            }
+            this.oldPasswordError = this.oldPasswordErrorMessages.length > 0
+            return !this.oldPasswordError;
+        },
+        async changePass() {
+            const validPass = this.passwordValidation()
+            const validOldPass = this.oldPasswordValidation()
+            if (validOldPass && validPass) {
+                await axios.post('http://localhost:3001/usuario/trocarSenha',{
+                    senhaAntiga: this.oldPassword,
+                    senhaNova: this.newPassword
+                },{
+                    headers: {
+                        'Autorizacao': localStorage.getItem('authToken'),
+                        'UsuarioId': localStorage.getItem('userId')
+                    }
+                }).then().catch(error => {
+                    console.error('Erro:', error);
+                });
                 this.showChangePass = false;
+                this.newPassword = '';
+                this.oldPassword = '';
             }
         },
         isCurrentRoute(route) {
@@ -145,7 +174,7 @@ export default {
                 v => v.length >= 8 || 'A senha deve ter pelo menos 8 caracteres.',
                 v => v.length <= 15 || 'A senha deve ter no máximo 15 caracteres.',
                 v => /^[a-zA-Z_0-9]+$/.test(v) || 'A senha só pode conter letras, números e underscore.',
-                v => v === this.repeatNewPassword || 'As senhas não combinam'
+                v => /^(?=.*[A-Z])(?=.*\d).{8,}$/.test(v) || 'A senha precisa ter uma letra maiúscula e um número.'
             ]
         },
     }
