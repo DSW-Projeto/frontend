@@ -13,8 +13,9 @@
                   required></v-text-field>
               </v-col>
               <v-col cols="12" sm="6" md="6">
-                <v-text-field :error="passwordError" :errorMessages="passwordErrorMessages" dark filled
-                  v-model="password" placeholder="Senha" label="Senha" required></v-text-field>
+                <v-text-field :type="showPass ? 'text' : 'password'" :append-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
+                  @click:append="showPass = !showPass" :error="passwordError" :errorMessages="passwordErrorMessages"
+                  dark filled v-model="password" placeholder="Senha" label="Senha" required></v-text-field>
               </v-col>
             </v-row>
             <v-row>
@@ -29,54 +30,64 @@
           <v-container>
             <v-text-field :error="usernameError" :error-messages="usernameErrorMessages" dark filled v-model="username"
               placeholder="Usuário" label="Usuário" required></v-text-field>
+
             <v-text-field filled :error="registerEmailError" :error-messages="registerEmailErrorMessages"
               v-model="registerEmail" placeholder="Email" label="Email" required></v-text-field>
-            <v-text-field :error="registerPasswordError" :error-messages="registerPasswordErrorMessages" dark filled
-              v-model="registerPassword" placeholder="Senha" label="Senha" required></v-text-field>
-            <v-text-field :error="repeatPasswordError" :error-messages="repeatPasswordErrorMessages" dark filled
+
+            <v-text-field :type="showRegisterPass ? 'text' : 'password'"
+              :append-icon="showRegisterPass ? 'mdi-eye' : 'mdi-eye-off'"
+              @click:append="showRegisterPass = !showRegisterPass" :error="registerPasswordError"
+              :error-messages="registerPasswordErrorMessages" dark filled v-model="registerPassword" placeholder="Senha"
+              label="Senha" required></v-text-field>
+
+            <v-text-field :type="showRepeatPass ? 'text' : 'password'"
+              :append-icon="showRepeatPass ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showRepeatPass = !showRepeatPass"
+              :error="repeatPasswordError" :error-messages="repeatPasswordErrorMessages" dark filled
               v-model="repeatPassword" placeholder="Repetir Senha" label="Repetir Senha" required></v-text-field>
+
             <span>Usada para recuperação de senha:</span>
-            <v-text-field :error="keyWordError" :error-messages="keyWordErrorMessages" dark filled v-model="keyWord"
-              placeholder="Palavra-Chave" label="Palavra-Chave" required></v-text-field>
-            <v-col><v-btn depressed @click="registrar">REGISTRAR</v-btn></v-col>
+
+            <v-text-field :type="showKey ? 'text' : 'password'" :append-icon="showKey ? 'mdi-eye' : 'mdi-eye-off'"
+              @click:append="showKey = !showKey" :error="keyWordError" :error-messages="keyWordErrorMessages" dark
+              filled v-model="keyWord" placeholder="Palavra-Chave" label="Palavra-Chave" required></v-text-field>
+
+            <v-col>
+              <v-btn depressed @click="registrar">REGISTRAR</v-btn>
+            </v-col>
+
           </v-container>
         </v-form>
-        <div class="recovery" @click="showKeyWordInput = true">
+        <div class="recovery" @click="showPassRecovery = true">
           <span>recuperar senha</span>
         </div>
 
         <!-- Recuperar Senha -->
-        <v-dialog v-model="showKeyWordInput" persistent max-width="25vw">
-          <v-form @submit.prevent="renameCol">
-            <v-container class="dialogCard secondary">
-              <v-row>
-                <v-col cols="12" md="12">
-                  <v-text-field v-model="recoveryKeyWord" label="Palavra-Chave" required>
-                  </v-text-field>
-                </v-col>
-                <div class="btnCard">
-                  <v-btn @click="submitKeyWord">Aceitar</v-btn>
-                  <v-btn class="error" @click="showKeyWordInput = false, newColTitle = ''">Cancelar</v-btn>
-                </div>
-              </v-row>
-            </v-container>
-          </v-form>
-        </v-dialog>
         <v-dialog v-model="showPassRecovery" persistent max-width="25vw">
-          <v-form @submit.prevent="renameCol">
+          <v-form @submit.prevent="recoveryPass">
             <v-container class="dialogCard secondary">
+              <div v-if="recoveryError" class="recovery-error">
+                <h2 class="error--text">Algo deu errado</h2>
+              </div>
               <v-row>
                 <v-col cols="12" md="12">
-                  <v-text-field v-model="newPassword" label="Nova Senha" required>
+                  <v-text-field :error="recoveryEmailError" :error-messages="recoveryEmailErrorMessages"
+                    v-model="recoveryEmail" label="Email" required>
                   </v-text-field>
                 </v-col>
                 <v-col cols="12" md="12">
-                  <v-text-field v-model="repeatNewPassword" label="Confirmar Nova Senha" required>
+                  <v-text-field :type="showRecoveryKey ? 'text' : 'password'"
+                  :append-icon="showRecoveryKey ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showRecoveryKey = !showRecoveryKey" :error="recoveryKeywordError" :error-messages="recoveryKeywordErrorMessages" v-model="recoveryKeyWord" label="Palavra-Chave" required>
+                  </v-text-field>
+                </v-col>
+                <v-col cols="12" md="12">
+                  <v-text-field :type="showNewPass ? 'text' : 'password'"
+                  :append-icon="showNewPass ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showNewPass = !showNewPass" :error="newPassError" :error-messages="newPassErrorMessages" v-model="newPassword" label="Nova Senha" required>
                   </v-text-field>
                 </v-col>
                 <div class="btnCard">
-                  <v-btn @click="recoveryPassWord">Aceitar</v-btn>
-                  <v-btn class="error" @click="showPassRecovery = false, newColTitle = ''">Cancelar</v-btn>
+                  <v-btn @click="recoveryPass">Aceitar</v-btn>
+                  <v-btn class="error"
+                    @click="showPassRecovery = false; recoveryError = false; recoveryEmail = ''; recoveryKeyWord = ''; newPassword = ''">Cancelar</v-btn>
                 </div>
               </v-row>
             </v-container>
@@ -94,6 +105,10 @@ export default {
   data() {
     return {
       //registro
+      showKey: false,
+      showPass: false,
+      showRepeatPass: false,
+      showRegisterPass: false,
       usernameError: false,
       usernameErrorMessages: [],
       repeatPasswordError: false,
@@ -119,11 +134,19 @@ export default {
       email: '',
 
       //recuperar senha
-      showKeyWordInput: false,
-      recoveryKeyWord: '',
+      showNewPass: false,
+      showRecoveryKey: false,
+      newPassErrorMessages: [],
+      newPassError: false,
+      recoveryKeywordErrorMessages: [],
+      recoveryKeywordError: false,
+      recoveryEmailErrorMessages: [],
+      recoveryEmailError: false,
+      recoveryError: false,
       showPassRecovery: false,
+      recoveryKeyWord: '',
       newPassword: '',
-      repeatNewPassword: '',
+      recoveryEmail: ''
     }
   },
   methods: {
@@ -141,13 +164,17 @@ export default {
         }
         axios.post('http://localhost:3001/usuario/login', loginForm).then(response => {
           console.log(response.data);
-          const { token, _id, username} = response.data;
+          const { token, _id, username } = response.data;
           localStorage.setItem('authToken', token);
           localStorage.setItem('userId', _id);
           localStorage.setItem('username', username);
+          localStorage.setItem('email', this.email);
           this.$emit('login');
           this.$router.push('/list');
         }).catch(error => {
+          if (error.response.data[0] === 'Usuário ou senha incorretos') {
+            alert(error.response.data[0]);
+          }
           console.error('Erro:', error);
         });
       }
@@ -265,6 +292,7 @@ export default {
           localStorage.setItem('authToken', token);
           localStorage.setItem('userId', _id);
           localStorage.setItem('username', this.username);
+          localStorage.setItem('email', this.registerEmail);
           this.$emit('login');
           this.$router.push('/list');
         }).catch(error => {
@@ -274,17 +302,67 @@ export default {
     },
 
     //Recuperar senha
-    submitKeyWord() {
-      if (this.recoveryKeyWord === 'teste') {
-        this.showPassRecovery = true;
-        this.showKeyWordInput = false;
-        this.recoveryKeyWord = '';
+    validateRecoveryPass() {
+      const rules = this.passwordRules;
+      this.newPassErrorMessages = [];
+
+      for (let rule of rules) {
+        const errorMessage = rule(this.newPassword);
+        if (errorMessage !== true) {
+          this.newPassErrorMessages.push(errorMessage);
+        }
       }
+      this.newPassError = this.newPassErrorMessages.length > 0;
+      return !this.newPassError;
     },
-    recoveryPassWord() {
-      this.newPassword = '';
-      this.repeatPassword = '';
-      this.showPassRecovery = false;
+    validateRecoveryEmail() {
+      const rules = this.emailRules;
+      this.recoveryEmailErrorMessages = [];
+
+      for (let rule of rules) {
+        const errorMessage = rule(this.recoveryEmail);
+        if (errorMessage !== true) {
+          this.recoveryEmailErrorMessages.push(errorMessage);
+        }
+      }
+      this.recoveryEmailError = this.recoveryEmailErrorMessages.length > 0;
+      return !this.recoveryEmailError;
+    },
+    validateRecoveryKeyWord() {
+      const rules = this.keyWordRules;
+      this.recoveryKeywordErrorMessages = [];
+
+      for (let rule of rules) {
+        const errorMessage = rule(this.recoveryKeyWord);
+        if (errorMessage !== true) {
+          this.recoveryKeywordErrorMessages.push(errorMessage);
+        }
+      }
+      this.recoveryKeywordError = this.recoveryKeywordErrorMessages.length > 0;
+      return !this.recoveryKeywordError;
+    },
+    recoveryPass() {
+      const validatePass = this.validateRecoveryPass();
+      const validateEmail = this.validateRecoveryEmail();
+      const validateKeyWord = this.validateRecoveryKeyWord();
+      const validate = validateEmail && validatePass && validateKeyWord;
+      if (validate) {
+        axios.post('http://localhost:3001/usuario/recuperarSenha', {
+          email: this.recoveryEmail,
+          palavraChave: this.recoveryKeyWord,
+          novaSenha: this.newPassword
+        }).then((response) => {
+          this.showPassRecovery = false;
+          alert(response.data[0]);
+          this.recoveryEmail = '';
+          this.newPassword = '';
+          this.recoveryKeyWord = '';
+          this.recoveryError = false;
+        }).catch(error => {
+          this.recoveryError = true;
+          console.error('Erro:', error);
+        });
+      }
     }
   },
   computed: {
@@ -308,6 +386,7 @@ export default {
         v => v.length >= 8 || 'A senha deve ter pelo menos 8 caracteres.',
         v => v.length <= 15 || 'A senha deve ter no máximo 15 caracteres.',
         v => /^[a-zA-Z_0-9]+$/.test(v) || 'A senha só pode conter letras, números e underscore.',
+        v => /^(?=.*[A-Z])(?=.*\d).{8,}$/.test(v) || 'A senha precisa ter uma letra maiúscula e um número.'
       ]
     },
     registerPasswordRules() {
@@ -340,6 +419,11 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 @import '../assets/Styles.css';
+
+.recovery-error {
+  display: flex;
+  justify-content: center;
+}
 
 .btnCard {
   display: flex;

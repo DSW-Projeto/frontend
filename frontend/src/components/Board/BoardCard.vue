@@ -12,11 +12,11 @@
             <div class="time">
                 <div>
                     <v-icon class="icons primary--text">more_time</v-icon>
-                    <span>{{ creation }}</span>
+                    <span>{{ this.dateParser().creationDate }}</span>
                 </div>
                 <div>
-                    <v-icon class="primary--text">edit</v-icon>
-                    <span>{{ lstEdition }}</span>
+                    <v-icon class="primary--text">mdi-clock-edit-outline</v-icon>
+                    <span>{{ this.dateParser().editionDate }}</span>
                 </div>
             </div>
         </div>
@@ -63,6 +63,11 @@ export default {
         },
         moveRight() {
             this.$emit('card-to-right', this.index);
+        },
+        dateParser(){
+            let creationDate = new Date(this.creation).toLocaleDateString('pt-BR');
+            let editionDate = new Date(this.lstEdition).toLocaleDateString('pt-BR');
+            return {creationDate: creationDate, editionDate: editionDate};
         }
     },
     data() {
@@ -70,6 +75,8 @@ export default {
             showCardEditor: false,
             isValid: false,
             newCardDescription: '',
+            creationDate: '',
+            editionDate: '',
         }
     },
     props: {
@@ -101,7 +108,7 @@ export default {
         maxLength() {
             return v => (v && v.length <= 25) || 'A descrição deve ter no máximo 25 caracteres';
         }
-    }
+    },
 }
 </script>
 

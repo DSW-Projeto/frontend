@@ -74,26 +74,22 @@ export default {
     async saveState() {
       const boardId = this.$route.params.id;
       this.lists = this.colSorter();
-      let listsAux = this.lists;
-      listsAux.forEach((coluna) => {
-        coluna.cartoes.forEach((card) => {
-          const [dia, mes, ano] = card.dataCriacao.split('/');
-          card.dataCriacao = new Date(ano, mes - 1, dia);
-        })
-      });
       await axios.put('http://localhost:3001/quadro/' + boardId, {
         nome: this.nome,
         corPrimaria: this.$vuetify.theme.themes.dark.primary,
         corSecundaria: this.$vuetify.theme.themes.dark.secondary,
         corTerciaria: this.$vuetify.theme.themes.dark.tertiary,
         corFundo: this.$vuetify.theme.themes.dark.background,
-        colunas: listsAux,
+        colunas: this.lists,
       }, {
         headers: {
           'Autorizacao': localStorage.getItem('authToken'),
           'UsuarioId': localStorage.getItem('userId')
         }
       }).then().catch(error => {
+        if(error.response.data[0] === 'Usuário não pode editar esse quadro'){
+        alert(error.response.data[0])
+        }
         console.error('Erro:', error);
       });
       await this.buscarCols();
@@ -112,15 +108,7 @@ export default {
         this.$vuetify.theme.themes.dark.background = response.data.corFundo;
         this.lists = response.data.colunas;
         this.nome = response.data.nome;
-
-        this.lists.forEach((list) => {
-          list.cartoes.forEach((card) => {
-            card.dataCriacao = new Date(card.dataCriacao);
-            card.dataCriacao = card.dataCriacao.toLocaleDateString('pt-BR');
-            card.ultimaModificacao = new Date(card.ultimaModificacao);
-            card.ultimaModificacao = card.ultimaModificacao.toLocaleDateString('pt-BR');
-          });
-        })
+        console.log(response.data)
       }).catch(error => {
         console.error('Erro:', error);
       });
@@ -128,22 +116,17 @@ export default {
     async handleEditCard(data) {
       const list = this.lists.find(col => col.posicao === data.colId.toString());
       const card = list.cartoes.find(card => card.posicao === data.cardIndex);
-      const formatter = new Intl.DateTimeFormat('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      });
-      const today = formatter.format(Date.now());
       card.conteudo = data.description;
-      card.ultimaModificacao = today;
+      card.ultimaModificacao = new Date();
       await this.saveState();
     },
-    handleDeleteCard(data) {
-      const list = this.lists.find(col => col.id === data.colId);
-      list.cards = list.cards.filter(card => card.index !== data.cardIndex);
-      list.cards.forEach((card, index) => {
-        card.index = index + 1
+    async handleDeleteCard(data) {
+      const list = this.lists.find(col => col.posicao === data.colId);
+      list.cartoes = list.cartoes.filter(card => card.posicao !== data.cardIndex);
+      list.cartoes.forEach((card, index) => {
+        card.posicao = index + 1
       });
+      await this.saveState();
     },
     moveCard(data, newListId) {
       const newList = this.lists.find(col => col.posicao === newListId);
@@ -200,18 +183,14 @@ export default {
       return String(this.lists.length + 1)
     },
     async handleNewCol(name) {
-      const boardId = this.$route.params.id;
       const newId = this.generateColId();
-      await axios.post('http://localhost:3001/quadro/' + boardId + '/coluna/', { nome: name, posicao: newId }, {
-        headers: {
-          'Autorizacao': localStorage.getItem('authToken'),
-          'UsuarioId': localStorage.getItem('userId')
-        }
-      }).then(
-      ).catch(error => {
-        console.error('Erro:', error);
-      });
-      await this.buscarCols()
+      const newCol = {
+        posicao: newId,
+        cartoes:[],
+        nome: name
+      }
+      this.lists.push(newCol)
+      this.saveState();
     },
     async handleNewColName(data) {
       this.lists.forEach((list) => {
@@ -231,20 +210,15 @@ export default {
     async handleNewCard(data) {
       const list = this.lists.find(list => list.posicao === data.index);
       const index = list.cartoes.length + 1;
-      const boardId = this.$route.params.id;
-      await axios.post('http://localhost:3001/quadro/' + boardId + '/cartao/', {
+      const newCard = {
         conteudo: data.description,
         posicao: index,
-        idColuna: data.idColuna
-      }, {
-        headers: {
-          'Autorizacao': localStorage.getItem('authToken'),
-          'UsuarioId': localStorage.getItem('userId')
-        }
-      }).then().catch(error => {
-        console.error('Erro:', error);
-      });
-      this.buscarCols();
+        idColuna: data.idColuna,
+        dataCriacao: new Date().toString(),
+        ultimaModificacao: new Date().toString(),
+      }
+      list.cartoes.push(newCard);
+      await this.saveState();
     },
     sortedCards(list) {
       if (!list || !list.cards) return [];

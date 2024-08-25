@@ -3,8 +3,8 @@
         <div class="left-nav">
             <img src="../../assets/logo.png" class="logo" alt="logotipo da aplicação">
             <div class="nav-list">
-                <v-btn @click="goToList" :class="{ 'disabled': isCurrentRoute('/list') }" depressed
-                    class="secondary primary--text" :disabled="isCurrentRoute('/list')">Meus Quadros</v-btn>
+                <v-btn @click="goToList" :class="{ 'disabled': isCurrentRoute('/list')}" depressed
+                    class="secondary primary--text" :disabled="isCurrentRoute('/list') || !userLoggedIn">Meus Quadros</v-btn>
                 <v-btn depressed class="secondary primary--text" @click="toggleTheme">Tema teste</v-btn>
             </div>
         </div>
@@ -33,10 +33,11 @@
                     <v-form @submit.prevent="changePass" v-model="isValid">
                         <v-row>
                             <v-col cols="12" md="12">
-                                <v-text-field :error="passwordError" :errorMessages="passwordErrorMessages"
-                                    v-model="newPassword" label="Nova Senha" required>
+                                <v-text-field :type="showPass ? 'text' : 'password'" :append-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPass = !showPass" :error="oldPasswordError" :errorMessages="oldPasswordErrorMessages"
+                                    v-model="oldPassword" label="Senha Antiga" required>
                                 </v-text-field>
-                                <v-text-field :error="oldPasswordError" :errorMessages="oldPasswordErrorMessages" v-model="oldPassword" label="Senha Antiga" required>
+                                <v-text-field :type="showNewPass ? 'text' : 'password'" :append-icon="showNewPass ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showNewPass = !showNewPass" :error="passwordError" :errorMessages="passwordErrorMessages"
+                                    v-model="newPassword" label="Nova Senha" required>
                                 </v-text-field>
                             </v-col>
                             <div class="btnCard">
@@ -58,11 +59,12 @@ import axios from 'axios';
 export default {
     data() {
         return {
+            showNewPass: false,
+            showPass:false,
             passwordError: false,
             passwordErrorMessages: [],
             isValid: false,
             lstLogged: '18/08/2024 - 20:45',
-            email: 'teste@gmail.com',
             currentColor: 'one',
             showAccount: false,
             showChangePass: false,
@@ -81,6 +83,10 @@ export default {
             type: String,
             required: true
         },
+        email:{
+            type: String,
+            required:true
+        }
     },
     methods: {
         async logout() {
@@ -91,8 +97,8 @@ export default {
                 }
             }).then(
                 localStorage.clear(),
-                this.$router.push('/login'),
-                this.$emit('logout')
+                this.$emit('logout'),
+                this.$router.push('/login')
             ).catch(error => {
                 console.error('Erro:', error);
             });
@@ -126,10 +132,10 @@ export default {
             const validPass = this.passwordValidation()
             const validOldPass = this.oldPasswordValidation()
             if (validOldPass && validPass) {
-                await axios.post('http://localhost:3001/usuario/trocarSenha',{
+                await axios.post('http://localhost:3001/usuario/trocarSenha', {
                     senhaAntiga: this.oldPassword,
                     senhaNova: this.newPassword
-                },{
+                }, {
                     headers: {
                         'Autorizacao': localStorage.getItem('authToken'),
                         'UsuarioId': localStorage.getItem('userId')

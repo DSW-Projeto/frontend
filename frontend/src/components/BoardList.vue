@@ -24,7 +24,9 @@
             :hide-default-footer="true">
             <template v-slot:item="{ item }">
                 <tr>
-                    <td @click="favorite(item._id)"><v-icon class="background" v-if="!item.favorito">grade</v-icon><v-icon v-if="item.favorito" class="secondary star"></v-icon></td>
+                    <td @click="favorite(item._id, item.favorito)"><v-icon
+                            v-if="!item.favorito">mdi-star-outline</v-icon><v-icon
+                            v-if="item.favorito">mdi-star</v-icon></td>
                     <td @click="goToPage(item._id)">{{ item.nome }}</td>
                     <td @click="goToPage(item._id)">{{ item.proprietario }}</td>
                     <td @click="goToPage(item._id)">{{ item.ultimaModificacao }}</td>
@@ -42,10 +44,13 @@
                         <v-col cols="12" md="12">
                             <v-text-field v-model="shareEmail" label="Email para compartilhamento" required>
                             </v-text-field>
+                            <v-checkbox v-model="onlyViewer" :label="'Apenas Visualizar'"></v-checkbox>
                         </v-col>
+
                         <div class="btnCard">
                             <v-btn @click="share(idShare)" :disabled="!isValid">Aceitar</v-btn>
-                            <v-btn class="error" @click="showShare = false, shareEmail = ''">Cancelar</v-btn>
+                            <v-btn class="error"
+                                @click="showShare = false; shareEmail = ''; onlyViewer = false">Cancelar</v-btn>
                         </div>
                     </v-row>
                 </v-container>
@@ -57,7 +62,6 @@
 <script>
 import axios from 'axios';
 
-
 export default {
     name: 'Frame-List',
     methods: {
@@ -67,48 +71,52 @@ export default {
                     _id: null,
                     email: this.shareEmail,
                     leitor: true,
-                    editor: true
+                    editor: !this.onlyViewer
                 },
             ], {
                 headers: {
                     'Autorizacao': localStorage.getItem('authToken'),
                     'UsuarioId': localStorage.getItem('userId')
                 }
-            }).then((response) => {
-                console.log(response)
-            }
-            ).catch(error => {
+            }).then().catch(error => {
                 console.error('Erro:', error);
             });
             this.showShare = false;
             this.shareEmail = '';
+            this.onlyViewer = false;
         },
-        favorite(_id) {
-            console.log('teste' + _id);
+        async favorite(_id, favorito) {
+            await axios.put('http://localhost:3001/quadro/' + _id + '/favoritar', {
+                favorito: !favorito
+            }, {
+                headers: {
+                    'Autorizacao': localStorage.getItem('authToken'),
+                    'UsuarioId': localStorage.getItem('userId')
+                }
+            }).then().catch(error => {
+                console.error('Erro:', error);
+            });
+            await this.buscarQuadros();
         },
-        removeBoard(_id) {
-            /** axios.get('http://localhost:3001/quadro', {
-                 headers: {
-                     'Autorizacao': localStorage.getItem('authToken'),
-                     'UsuarioId': localStorage.getItem('userId')
-                 }
-             }).then(response => {
-                 this.boards = response.data
-                 this.boards.forEach((board) => {
-                     board.ultimaModificacao = new Date(board.ultimaModificacao);
-                     board.ultimaModificacao = board.ultimaModificacao.toLocaleDateString('pt-BR');
-                 })
-                 
-             }).catch(error => {
-                 console.error('Erro:', error);
-             });**/
-            console.log('teste' + _id)
+        async removeBoard(_id) {
+            await axios.delete('http://localhost:3001/quadro/' + _id + '/deletar', {
+                headers: {
+                    'Autorizacao': localStorage.getItem('authToken'),
+                    'UsuarioId': localStorage.getItem('userId')
+                }
+            }).then(response => {
+                console.log(response);
+            }).catch(error => {
+                console.error('Erro:', error);
+                alert(error.response.data[0])
+            });
+            await this.buscarQuadros();
         },
         goToPage(_id) {
             this.$router.push(`/list/${_id}`);
         },
         async buscarQuadros() {
-            axios.get('http://localhost:3001/quadro', {
+            await axios.get('http://localhost:3001/quadro', {
                 headers: {
                     'Autorizacao': localStorage.getItem('authToken'),
                     'UsuarioId': localStorage.getItem('userId')
@@ -119,7 +127,7 @@ export default {
                     board.ultimaModificacao = new Date(board.ultimaModificacao);
                     board.ultimaModificacao = board.ultimaModificacao.toLocaleDateString('pt-BR');
                 })
-
+                console.log(response.data)
             }).catch(error => {
                 console.error('Erro:', error);
             });
@@ -149,25 +157,26 @@ export default {
             newBoardName: '',
             showBoardCreator: false,
             isValid: false,
+            onlyViewer: false,
             headers: [
                 {
-                    text: '',
-                    value: 'screenName',
+                    text: 'Favorito',
+                    value: 'favorito',
                     divider: true,
                 },
                 {
                     text: 'Nome Do Quadro',
-                    value: 'screenName',
+                    value: 'nome',
                     divider: true,
                 },
                 {
                     text: 'Autor',
-                    value: 'autor',
+                    value: 'proprietario',
                     divider: true,
                 },
                 {
                     text: 'Última modificação',
-                    value: 'dataMod',
+                    value: 'ultimaModificacao',
                 },
                 {
                     text: 'Remover',
@@ -198,7 +207,6 @@ export default {
             this.boards.forEach((board) => {
                 board.ultimaModificacao = new Date(board.ultimaModificacao);
                 board.ultimaModificacao = board.ultimaModificacao.toLocaleDateString('pt-BR');
-                console.log(response.data)
             })
 
         }).catch(error => {

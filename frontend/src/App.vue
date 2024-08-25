@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <div class="background" id="app">
-      <NavBar @logout="handleLogout" :username="username" :userLoggedIn="this.userLoggedIn"></NavBar>
+      <NavBar @logout="handleLogout" :email="email" :username="username" :userLoggedIn="this.userLoggedIn"></NavBar>
       <div :class="['appcontainer', { wide: isWide }]">
         <LoginC @login="handleLogin" v-if="!userLoggedIn" />
         <v-theme-provider v-if="userLoggedIn" :dark="true">
@@ -32,7 +32,8 @@ export default {
     return {
       userLoggedIn: false,
       isWide: false,
-      username: ''
+      username: '',
+      email: ''
     }
   },
   methods: {
@@ -41,9 +42,11 @@ export default {
     },
     handleLogin(){
       this.username = localStorage.getItem('username');
+      this.email = localStorage.getItem('email');
       this.userLoggedIn = true;
     },
     handleLogout(){
+      this.email = '';
       this.username = '';
       this.userLoggedIn = false;
     },
