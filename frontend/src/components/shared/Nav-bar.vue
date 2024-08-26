@@ -3,9 +3,10 @@
         <div class="left-nav">
             <img src="../../assets/logo.png" class="logo" alt="logotipo da aplicação">
             <div class="nav-list">
-                <v-btn @click="goToList" :class="{ 'disabled': isCurrentRoute('/list')}" depressed
-                    class="secondary primary--text" :disabled="isCurrentRoute('/list') || !userLoggedIn">Meus Quadros</v-btn>
-                <v-btn depressed class="secondary primary--text" @click="toggleTheme">Tema teste</v-btn>
+                <v-btn @click="goToList" :class="{ 'disabled': isCurrentRoute('/list') }" depressed
+                    class="secondary primary--text" :disabled="isCurrentRoute('/list') || !userLoggedIn">Meus
+                    Quadros</v-btn>
+                <!--- <v-btn depressed class="secondary primary--text" @click="toggleTheme">Tema teste</v-btn>--->
             </div>
         </div>
         <div class="rigth-nav">
@@ -16,9 +17,6 @@
                     <div class="identity-infos">
                         <h2>{{ username }}</h2>
                         <span>{{ email }}</span>
-                    </div>
-                    <div class="lst-login">
-                        <span style="margin-right: 10px;">Último login:</span><span>{{ lstLogged }}</span>
                     </div>
                     <div class="user-btn">
                         <v-btn depressed class="tertiary"
@@ -31,13 +29,22 @@
             <v-dialog v-model="showChangePass" persistent max-width="30vw">
                 <v-container class="secondary">
                     <v-form @submit.prevent="changePass" v-model="isValid">
+                        <div class="errorTitle">
+                            <h2 v-if="changePassError" class="error--text">Algo de errado aconteceu</h2>
+                        </div>
                         <v-row>
                             <v-col cols="12" md="12">
-                                <v-text-field :type="showPass ? 'text' : 'password'" :append-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPass = !showPass" :error="oldPasswordError" :errorMessages="oldPasswordErrorMessages"
-                                    v-model="oldPassword" label="Senha Antiga" required>
+                                <v-text-field :type="showPass ? 'text' : 'password'"
+                                    :append-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
+                                    @click:append="showPass = !showPass" :error="oldPasswordError"
+                                    :errorMessages="oldPasswordErrorMessages" v-model="oldPassword" label="Senha Antiga"
+                                    required>
                                 </v-text-field>
-                                <v-text-field :type="showNewPass ? 'text' : 'password'" :append-icon="showNewPass ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showNewPass = !showNewPass" :error="passwordError" :errorMessages="passwordErrorMessages"
-                                    v-model="newPassword" label="Nova Senha" required>
+                                <v-text-field :type="showNewPass ? 'text' : 'password'"
+                                    :append-icon="showNewPass ? 'mdi-eye' : 'mdi-eye-off'"
+                                    @click:append="showNewPass = !showNewPass" :error="passwordError"
+                                    :errorMessages="passwordErrorMessages" v-model="newPassword" label="Nova Senha"
+                                    required>
                                 </v-text-field>
                             </v-col>
                             <div class="btnCard">
@@ -59,12 +66,12 @@ import axios from 'axios';
 export default {
     data() {
         return {
+            changePassError: false,
             showNewPass: false,
-            showPass:false,
+            showPass: false,
             passwordError: false,
             passwordErrorMessages: [],
             isValid: false,
-            lstLogged: '18/08/2024 - 20:45',
             currentColor: 'one',
             showAccount: false,
             showChangePass: false,
@@ -83,9 +90,9 @@ export default {
             type: String,
             required: true
         },
-        email:{
+        email: {
             type: String,
-            required:true
+            required: true
         }
     },
     methods: {
@@ -140,12 +147,14 @@ export default {
                         'Autorizacao': localStorage.getItem('authToken'),
                         'UsuarioId': localStorage.getItem('userId')
                     }
-                }).then().catch(error => {
+                }).then(() => {
+                    this.showChangePass = false;
+                    this.newPassword = '';
+                    this.oldPassword = '';
+                }).catch(error => {
+                    this.changePassError = true;
                     console.error('Erro:', error);
                 });
-                this.showChangePass = false;
-                this.newPassword = '';
-                this.oldPassword = '';
             }
         },
         isCurrentRoute(route) {
@@ -190,7 +199,10 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 @import '../../assets/Styles.css';
-
+.errorTitle{
+    display: flex;
+    justify-content: center;
+}
 .btnCard {
     display: flex;
     flex-direction: row;

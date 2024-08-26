@@ -108,7 +108,6 @@ export default {
         this.$vuetify.theme.themes.dark.background = response.data.corFundo;
         this.lists = response.data.colunas;
         this.nome = response.data.nome;
-        console.log(response.data)
       }).catch(error => {
         console.error('Erro:', error);
       });
@@ -189,7 +188,7 @@ export default {
         cartoes:[],
         nome: name
       }
-      this.lists.push(newCol)
+      this.lists.push(newCol);
       this.saveState();
     },
     async handleNewColName(data) {
@@ -216,6 +215,7 @@ export default {
         idColuna: data.idColuna,
         dataCriacao: new Date().toString(),
         ultimaModificacao: new Date().toString(),
+        pdf: data.pdf,
       }
       list.cartoes.push(newCard);
       await this.saveState();

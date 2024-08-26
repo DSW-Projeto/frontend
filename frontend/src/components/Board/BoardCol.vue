@@ -8,7 +8,7 @@
         <div v-for="(card, index) in cards" class="card" :key="index">
             <BoardCard @edit-card="handleEditCard" @delete-card="handleDeleteCard" @card-to-right="handleCardRight" @card-to-left="handleCardLeft" class="tertiary" :index="card.posicao"
                 :description="card.conteudo" :author="'-'" :lstEdition="card.ultimaModificacao"
-                :creation="card.dataCriacao"></BoardCard>
+                :creation="card.dataCriacao" :pdf="card.pdf"></BoardCard>
         </div>
         <div class="colOptions">
             <div class="rowOptions">
@@ -35,8 +35,8 @@ export default {
         handleDeleteCard(cardIndex){
             this.$emit('delete-card',{colId:this.index, cardIndex: cardIndex});
         },
-        handleNewCard(newCardDescription) {
-            this.$emit('send-card', { description: newCardDescription, idColuna: this._id ,index: this.index });
+        handleNewCard(data) {
+            this.$emit('send-card', { description: data.newCardDescription, idColuna: this._id ,index: this.index,  pdf:data.pdf});
         },
         handleNewColName(newColName) {
             this.$emit('rename-col', { title: newColName, index: this.index });
@@ -73,7 +73,7 @@ export default {
         },
         _id:{
             type: String,
-            required: true
+            required: false
         }
     },
     components: {

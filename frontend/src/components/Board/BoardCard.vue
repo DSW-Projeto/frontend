@@ -7,6 +7,7 @@
             <v-btn @click="moveRight" class="tertiary" depressed>
                 <v-icon>arrow_right</v-icon></v-btn>
         </div>
+        <v-btn depressed v-if="this.pdf" @click="abrirPdf" class="btn-pdf tertiary"><span>PDF Relacionado</span><v-icon>mdi-file</v-icon></v-btn>
         <div @click="showCardEditor = true">
             <p>{{ description }}</p>
             <div class="time">
@@ -37,7 +38,8 @@
                             <v-btn class="error" @click="showCardEditor = false">Cancelar</v-btn>
                         </div>
                         <div class="btnDelete">
-                            <v-btn class="error" @click="showCardEditor = false; deleteCard()"><v-icon>delete</v-icon><span>Apagar
+                            <v-btn class="error"
+                                @click="showCardEditor = false; deleteCard()"><v-icon>delete</v-icon><span>Apagar
                                     Cartão</span></v-btn>
                         </div>
                     </v-row>
@@ -51,12 +53,20 @@
 export default {
     name: 'BoardCard',
     methods: {
-        deleteCard(){
+        async abrirPdf() {
+            const base64PDF = this.pdf;
+            if (base64PDF) {
+                const blob = fetch(base64PDF).then(res => res.blob());
+                const url = URL.createObjectURL(await blob);
+                window.open(url, '_blank');
+            }
+        },
+        deleteCard() {
             this.$emit('delete-card', this.index);
         },
         editCard() {
             this.showCardEditor = false;
-            this.$emit('edit-card', {cardIndex: this.index, description: this.newCardDescription})
+            this.$emit('edit-card', { cardIndex: this.index, description: this.newCardDescription })
         },
         moveLeft() {
             this.$emit('card-to-left', this.index);
@@ -64,10 +74,10 @@ export default {
         moveRight() {
             this.$emit('card-to-right', this.index);
         },
-        dateParser(){
+        dateParser() {
             let creationDate = new Date(this.creation).toLocaleDateString('pt-BR');
             let editionDate = new Date(this.lstEdition).toLocaleDateString('pt-BR');
-            return {creationDate: creationDate, editionDate: editionDate};
+            return { creationDate: creationDate, editionDate: editionDate };
         }
     },
     data() {
@@ -80,6 +90,10 @@ export default {
         }
     },
     props: {
+        pdf:{
+            type: String,
+            required: false
+        },
         index: {
             type: Number,
             required: true
@@ -114,6 +128,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.btn-pdf{
+    margin: 7px 0 7px 0;
+}
+
 .moveButtons {
     display: flex;
     justify-content: space-between;

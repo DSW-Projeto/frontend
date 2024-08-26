@@ -182,11 +182,13 @@ export default {
                     text: 'Remover',
                     value: '-',
                     divider: true,
+                    sortable: false,
                 },
                 {
                     text: 'Compartilhar',
                     value: '-',
                     divider: true,
+                    sortable: false,
                 },
             ],
             boards: [
