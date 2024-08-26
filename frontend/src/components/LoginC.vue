@@ -153,7 +153,6 @@ export default {
 
     //Login e validações
     async login() {
-      console.log(this.validatePassword())
       if (
         this.validateEmail() &&
         this.validatePassword()
@@ -163,7 +162,6 @@ export default {
           senha: this.password
         }
         axios.post('http://localhost:3001/usuario/login', loginForm).then(response => {
-          console.log(response.data);
           const { token, _id, username } = response.data;
           localStorage.setItem('authToken', token);
           localStorage.setItem('userId', _id);

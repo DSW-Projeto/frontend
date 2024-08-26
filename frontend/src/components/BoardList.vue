@@ -30,15 +30,18 @@
                     <td @click="goToPage(item._id)">{{ item.nome }}</td>
                     <td @click="goToPage(item._id)">{{ item.proprietario }}</td>
                     <td @click="goToPage(item._id)">{{ item.ultimaModificacao }}</td>
-                    <td><v-btn @click="removeBoard(item._id)" depressed
-                            class="error"><v-icon>delete</v-icon><span>remover</span></v-btn></td>
                     <td @click="showShare = true; idShare = item._id"><v-btn depressed><span>Compartilhar</span></v-btn>
+                    </td>
+                    <td @click="showRename = true; idRename = item._id"><v-btn depressed><span>Renomear</span></v-btn>
+                    </td>
+                    <td><v-btn @click="removeBoard(item._id)" depressed
+                            class="error"><v-icon>delete</v-icon><span>remover</span></v-btn>
                     </td>
                 </tr>
             </template>
         </v-data-table>
         <v-dialog v-model="showShare" persistent max-width="25vw">
-            <v-form @submit.prevent="renameCol" v-model="isValid">
+            <v-form @submit.prevent="share(idShare)" v-model="isValidShare">
                 <v-container class="dialogCard secondary">
                     <v-row>
                         <v-col cols="12" md="12">
@@ -48,9 +51,26 @@
                         </v-col>
 
                         <div class="btnCard">
-                            <v-btn @click="share(idShare)" :disabled="!isValid">Aceitar</v-btn>
+                            <v-btn @click="share(idShare)" :disabled="!isValidShare">Aceitar</v-btn>
                             <v-btn class="error"
                                 @click="showShare = false; shareEmail = ''; onlyViewer = false">Cancelar</v-btn>
+                        </div>
+                    </v-row>
+                </v-container>
+            </v-form>
+        </v-dialog>
+        <v-dialog v-model="showRename" persistent max-width="25vw">
+            <v-form @submit.prevent="renameBoard(idRename)" v-model="isValidRename">
+                <v-container class="dialogCard secondary">
+                    <v-row>
+                        <v-col cols="12" md="12">
+                            <v-text-field v-model="renameBoardName" :rules="[minLength, maxLength]" maxlength="25"
+                                :counter="25" label="Nome Do Quadro" required>
+                            </v-text-field>
+                        </v-col>
+                        <div class="btnCard">
+                            <v-btn :disabled="!isValidRename" @click="renameBoard(idRename)">Aceitar</v-btn>
+                            <v-btn class="error" @click="showRename = false">Cancelar</v-btn>
                         </div>
                     </v-row>
                 </v-container>
@@ -104,9 +124,8 @@ export default {
                     'Autorizacao': localStorage.getItem('authToken'),
                     'UsuarioId': localStorage.getItem('userId')
                 }
-            }).then(response => {
-                console.log(response);
-            }).catch(error => {
+            }).then(
+            ).catch(error => {
                 console.error('Erro:', error);
                 alert(error.response.data[0])
             });
@@ -126,9 +145,7 @@ export default {
                 this.boards.forEach((board) => {
                     board.ultimaModificacao = new Date(board.ultimaModificacao);
                     board.ultimaModificacao = board.ultimaModificacao.toLocaleDateString('pt-BR');
-                    console.log(response.data)
                 })
-                console.log(response.data)
             }).catch(error => {
                 console.error('Erro:', error);
             });
@@ -147,10 +164,32 @@ export default {
                 this.newBoardName = '';
                 this.showBoardCreator = false;
             }
+        },
+        async renameBoard(_id) {
+            if (this.isValidRename) {
+                await axios.put('http://localhost:3001/quadro/'+_id+'/renomear', { nome: this.renameBoardName }, {
+                    headers: {
+                        'Autorizacao': localStorage.getItem('authToken'),
+                        'UsuarioId': localStorage.getItem('userId')
+                    }
+                }).then().catch(error => {
+                    console.error('Erro:', error);
+                    if(error.response.data[0] === 'Usuário não pode editar esse quadro'){
+                        alert(error.response.data[0]);
+                    }
+                });
+                await this.buscarQuadros();
+                this.renameBoardName = '';
+                this.showRename = false;
+            }
         }
     },
     data() {
         return {
+            isValidShare:false,
+            isValidRename: false,
+            renameBoardName:'',
+            showRename:false,
             idShare: '',
             shareBoard: '',
             shareEmail: '',
@@ -178,17 +217,23 @@ export default {
                 {
                     text: 'Última modificação',
                     value: 'ultimaModificacao',
-                },
-                {
-                    text: 'Remover',
-                    value: '-',
                     divider: true,
-                    sortable: false,
                 },
                 {
                     text: 'Compartilhar',
                     value: '-',
                     divider: true,
+                    sortable: false,
+                },
+                {
+                    text: 'Renomear',
+                    value: '-',
+                    divider: true,
+                    sortable: false,
+                },
+                {
+                    text: 'Remover',
+                    value: '-',
                     sortable: false,
                 },
             ],
