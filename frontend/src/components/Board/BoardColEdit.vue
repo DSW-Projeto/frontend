@@ -9,7 +9,7 @@
         <v-container class="dialogCard secondary">
           <v-row>
             <v-col cols="12" md="12">
-              <v-text-field v-model="newColTitle" :rules="[minLength, maxLength]" maxlength="30" :counter="30" label="Novo título da coluna" required>
+              <v-text-field v-model="newColTitle" :rules="[minLength, maxLength]" maxlength="25" :counter="25" label="Novo título da coluna" required>
               </v-text-field>
             </v-col>
             <div class="btnCard">

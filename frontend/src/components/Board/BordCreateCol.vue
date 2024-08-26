@@ -8,7 +8,7 @@
                     <v-row>
                         <v-col cols="12" md="12">
                             <v-text-field v-model="newColName" :rules="[minLength, maxLength]"
-                                maxlength="30" :counter="30" label="Nome da coluna" required>
+                                maxlength="25" :counter="25" label="Nome da coluna" required>
                             </v-text-field>
                         </v-col>
                         <div class="btnCol">

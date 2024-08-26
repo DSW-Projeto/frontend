@@ -22,7 +22,7 @@
             </div>
         </div>
         <div class="author">
-            <span>Autor: {{ author }}</span>
+            
         </div>
         <v-dialog v-model="showCardEditor" persistent max-width="25vw">
             <v-form @submit.prevent="editCard" v-model="isValid">
