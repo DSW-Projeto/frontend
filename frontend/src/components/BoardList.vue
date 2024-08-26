@@ -8,8 +8,8 @@
                 <v-container class="dialogCard secondary">
                     <v-row>
                         <v-col cols="12" md="12">
-                            <v-text-field v-model="newBoardName" :rules="[minLength, maxLength]" maxlength="30"
-                                :counter="30" label="Nome Do Quadro" required>
+                            <v-text-field v-model="newBoardName" :rules="[minLength, maxLength]" maxlength="25"
+                                :counter="25" label="Nome Do Quadro" required>
                             </v-text-field>
                         </v-col>
                         <div class="btnCard">
@@ -126,6 +126,7 @@ export default {
                 this.boards.forEach((board) => {
                     board.ultimaModificacao = new Date(board.ultimaModificacao);
                     board.ultimaModificacao = board.ultimaModificacao.toLocaleDateString('pt-BR');
+                    console.log(response.data)
                 })
                 console.log(response.data)
             }).catch(error => {
